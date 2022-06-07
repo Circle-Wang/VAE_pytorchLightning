@@ -14,8 +14,8 @@ class FlatDataset(torch.utils.data.Dataset):
         self.data = np.loadtxt(self.csv_file, delimiter=",", skiprows=1)
         
         if self.is_test:
-            normal_data, self.Min_Val, self.Max_Val = data_normalized(self.data)
-            self.missing_data, self.Missing = get_missing(normal_data, missing_ratio) # 列缺失率为0.3
+            self.normal_data, self.Min_Val, self.Max_Val = data_normalized(self.data)
+            self.missing_data, self.Missing = get_missing(self.normal_data, missing_ratio) # 列缺失率为0.3
 
     def __len__(self):
         return len(self.data)
@@ -33,6 +33,7 @@ class FlatDataset(torch.utils.data.Dataset):
 
         return {
             "src_data": torch.from_numpy(src_data_batch).float(),
+            'normal_data': torch.from_numpy(normal_data).float(),
             "miss_data": torch.from_numpy(miss_data_batch).float(),
             'miss_matrix': torch.from_numpy(M_batch).float(),
             'Min_Val': torch.from_numpy(Min_Val_batch).float(),
@@ -43,6 +44,7 @@ class FlatDataset(torch.utils.data.Dataset):
         if self.is_test:
             ret = {
                 'src_data': self.data[index],
+                'normal_data': self.normal_data[index],
                 'miss_data': self.missing_data[index],
                 'miss_matrix': self.Missing[index],
             }
