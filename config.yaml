@@ -1,0 +1,23 @@
+############################   trainer ####################################
+gpus: '0'
+save_dir: /root/autodl-tmp/VAE方法_pytorchLightning/模型参数保存
+num_workers: 4
+precision: 32
+max_epochs: 2000
+
+############################   model ####################################
+batch_size: 128
+version: 1
+############################ optimizer ##################################
+optim: Adam                          # 可选优化器Adam、SGD
+lr: 1e-4                             # 学习率
+lr_scheduler: CosineAnnealingLR      # 可选CosineAnnealingLR、OneCycleLR、None
+
+############################ load checkpoint path ###################
+checkpoint_path: 
+
+############################ dataset ##################################
+train_data: /root/autodl-tmp/VAE方法_pytorchLightning/Spam_train.csv
+val_data: /root/autodl-tmp/VAE方法_pytorchLightning/Spam_test.csv
+dim: 57 # 数据特征维度
+
