@@ -3,7 +3,7 @@ gpus: '0'
 save_dir: /root/autodl-tmp/VAE方法_pytorchLightning/模型参数保存
 num_workers: 4
 precision: 32
-max_epochs: 2000
+max_epochs: 1000
 
 ############################   model ####################################
 batch_size: 128
