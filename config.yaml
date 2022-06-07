@@ -1,6 +1,6 @@
 ############################   trainer ####################################
 gpus: '0'
-save_dir: /root/autodl-tmp/VAE方法_pytorchLightning/模型参数保存
+save_dir: /root/autodl-tmp/VAE_pytorchLightning/模型参数保存
 num_workers: 4
 precision: 32
 max_epochs: 1000
@@ -18,7 +18,7 @@ checkpoint_path:
 
 ############################ dataset ##################################
 dataset_name: 'Spam'
-train_data: /root/autodl-tmp/VAE方法_pytorchLightning/Spam_train.csv
-val_data: /root/autodl-tmp/VAE方法_pytorchLightning/Spam_test.csv
+train_data: /root/autodl-tmp/VAE_pytorchLightning/Spam_train.csv
+val_data: /root/autodl-tmp/VAE_pytorchLightning/Spam_test.csv
 dim: 57 # 数据特征维度
 

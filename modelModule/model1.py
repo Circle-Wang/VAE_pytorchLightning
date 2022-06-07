@@ -6,6 +6,7 @@ class VAE(nn.Module):
     def __init__(self, dim=57):
         super(VAE, self).__init__()
         self.dim = dim
+        self.scale_parm = nn.Parameter(torch.randn(1, self.dim))
         self.FClayer1 = nn.Linear(in_features=self.dim*2, out_features=self.dim)
         self.encoder_layer = nn.TransformerEncoderLayer(d_model=self.dim, nhead=3, dim_feedforward=256, batch_first=True)
         self.encoder = nn.TransformerEncoder(self.encoder_layer, num_layers=6) # 输出为[batch, src, dim]
@@ -43,7 +44,8 @@ class VAE(nn.Module):
         z = self.reparameterize(mu, log_var) # 得到隐藏变量
 
         out = self.decoder(z)
-        out = torch.sigmoid(self.FClayer2(out)).squeeze(0) # [batch,dim]
+        out = torch.sigmoid(self.FClayer2(out)).squeeze(0) # [batch, dim]
+        out = out * self.scale_parm
         return out, mu, log_var
 
 

@@ -31,7 +31,7 @@ class MInterface(pl.LightningModule):
         src_data, miss_data, M_matrix = batch['src_data'], batch['miss_data'], batch['miss_matrix']
         Max_Val, Min_Val = batch['Max_Val'], batch['Min_Val']
         imputed_data, mu, log_var = self.model(miss_data, M_matrix)
-        imputed_data = restore_data(imputed_data, Max_Val, Min_Val)
+        # imputed_data = restore_data(imputed_data, Max_Val, Min_Val)
         loss = vae_loss(src_data, imputed_data, M_matrix, mu, log_var)
         self.log('train_loss', loss, on_epoch=True, on_step=True, prog_bar=True, logger=True)
         return loss
@@ -40,7 +40,7 @@ class MInterface(pl.LightningModule):
         src_data, miss_data, M_matrix = batch['src_data'], batch['miss_data'], batch['miss_matrix']
         Max_Val, Min_Val = batch['Max_Val'], batch['Min_Val']
         imputed_data, mu, log_var = self.model(miss_data, M_matrix)
-        imputed_data = restore_data(imputed_data, Max_Val, Min_Val)
+        # imputed_data = restore_data(imputed_data, Max_Val, Min_Val)
         loss = vae_loss(src_data, imputed_data, M_matrix, mu, log_var)
         self.log('val_loss', loss, on_epoch=True, prog_bar=True, logger=True)
 
