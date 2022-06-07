@@ -27,7 +27,7 @@ class FlatDataset(torch.utils.data.Dataset):
         '''
         src_data_batch = np.stack([s['src_data'] for s in samples], axis=0)       # batch中样本的原数据集
         normal_data, Min_Val_batch, Max_Val_batch= data_normalized(src_data_batch) # 对数据正则化
-        miss_data_batch, M_batch = get_missing(normal_data, self.missing_ratio) # 获取最大值最小值
+        miss_data_batch, M_batch = get_missing(normal_data, self.missing_ratio)   # 得到缺失矩阵
         # miss_data_batch = np.stack([s['miss_data'] for s in samples], axis=0)     # batch中样本的缺失数据集合
         # M_batch = np.stack([s['miss_matrix'] for s in samples], axis=0) # batch中样本的缺失矩阵
 

@@ -1,0 +1,36 @@
+nohup: ignoring input
+[2022-06-07 14:54:15,254][modelModule.model_interface][INFO] - VAE 模型初始化开始...
+GPU available: True, used: False
+TPU available: False, using: 0 TPU cores
+IPU available: False, using: 0 IPUs
+HPU available: False, using: 0 HPUs
+[2022-06-07 14:54:15,303][train][INFO] - Start training...
+Error executing job with overrides: []
+Traceback (most recent call last):
+  File "train.py", line 50, in my_app
+    main(args)
+  File "train.py", line 45, in main
+    trainer.fit(model, dataloader)
+  File "/root/miniconda3/lib/python3.8/site-packages/pytorch_lightning/trainer/trainer.py", line 770, in fit
+    self._call_and_handle_interrupt(
+  File "/root/miniconda3/lib/python3.8/site-packages/pytorch_lightning/trainer/trainer.py", line 723, in _call_and_handle_interrupt
+    return trainer_fn(*args, **kwargs)
+  File "/root/miniconda3/lib/python3.8/site-packages/pytorch_lightning/trainer/trainer.py", line 811, in _fit_impl
+    results = self._run(model, ckpt_path=self.ckpt_path)
+  File "/root/miniconda3/lib/python3.8/site-packages/pytorch_lightning/trainer/trainer.py", line 1174, in _run
+    self._call_setup_hook()  # allow user to setup lightning_module in accelerator environment
+  File "/root/miniconda3/lib/python3.8/site-packages/pytorch_lightning/trainer/trainer.py", line 1492, in _call_setup_hook
+    self.datamodule.setup(stage=fn)
+  File "/root/autodl-tmp/VAE_pytorchLightning/dataModule/data_interface.py", line 12, in setup
+    self.train_set = FlatDataset(self.args.train_data)
+  File "/root/autodl-tmp/VAE_pytorchLightning/dataModule/dataset1.py", line 14, in __init__
+    self.data = np.loadtxt(self.csv_file, delimiter=",", skiprows=1)
+  File "/root/miniconda3/lib/python3.8/site-packages/numpy/lib/npyio.py", line 1067, in loadtxt
+    fh = np.lib._datasource.open(fname, 'rt', encoding=encoding)
+  File "/root/miniconda3/lib/python3.8/site-packages/numpy/lib/_datasource.py", line 193, in open
+    return ds.open(path, mode, encoding=encoding, newline=newline)
+  File "/root/miniconda3/lib/python3.8/site-packages/numpy/lib/_datasource.py", line 533, in open
+    raise IOError("%s not found." % path)
+OSError: /root/autodl-tmp/VAE方法_pytorchLightning/Spam_train.csv not found.
+
+Set the environment variable HYDRA_FULL_ERROR=1 for a complete stack trace.

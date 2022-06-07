@@ -17,6 +17,7 @@ lr_scheduler: CosineAnnealingLR      # 可选CosineAnnealingLR、OneCycleLR、No
 checkpoint_path: 
 
 ############################ dataset ##################################
+dataset_name: 'Spam'
 train_data: /root/autodl-tmp/VAE方法_pytorchLightning/Spam_train.csv
 val_data: /root/autodl-tmp/VAE方法_pytorchLightning/Spam_test.csv
 dim: 57 # 数据特征维度
