@@ -30,8 +30,10 @@ class MInterface(pl.LightningModule):
     def training_step(self, batch, batch_idx):
         normal_data, miss_data, M_matrix = batch['normal_data'], batch['miss_data'], batch['miss_matrix']
         imputed_data, mu, log_var = self.model(miss_data, M_matrix)
-        loss = vae_loss(normal_data, imputed_data, M_matrix, mu, log_var)
+        loss, MSE_loss, kl_div = vae_loss(normal_data, imputed_data, M_matrix, mu, log_var)
         self.log('train_loss', loss, on_epoch=True, on_step=True, prog_bar=True, logger=True)
+        self.log('kl_div', kl_div, on_epoch=True, on_step=False, prog_bar=True, logger=True)
+        self.log('MSE_loss', MSE_loss, on_epoch=True, on_step=False, prog_bar=True, logger=True)
         return loss
 
     def validation_step(self, batch, batch_idx):
@@ -40,8 +42,9 @@ class MInterface(pl.LightningModule):
         # Max_Val, Min_Val = batch['Max_Val'], batch['Min_Val']
         imputed_data, mu, log_var = self.model(miss_data, M_matrix)
         # imputed_data = restore_data(imputed_data, Max_Val, Min_Val)
-        loss = vae_loss(src_data, imputed_data, M_matrix, mu, log_var)
+        loss, MSE_loss, _ = vae_loss(src_data, imputed_data, M_matrix, mu, log_var)
         self.log('val_loss', loss, on_epoch=True, prog_bar=True, logger=True)
+        self.log('val_MSE_loss', MSE_loss, on_epoch=True, prog_bar=True, logger=True)
 
 
 

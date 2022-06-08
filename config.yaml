@@ -7,7 +7,7 @@ max_epochs: 1000
 
 ############################   model ####################################
 batch_size: 256
-version: 2
+version: 1
 ############################ optimizer ##################################
 optim: Adam                          # 可选优化器Adam、SGD
 lr: 1e-4                             # 学习率
@@ -23,5 +23,5 @@ val_data: /root/autodl-tmp/VAE_pytorchLightning/Letter_test.csv
 dim: 16            # 数据特征维度
 nhead: 4           # 多头注意力机制的头数
 missing_ratio: 0.3 # 模拟缺失比率
-data_norm: minmax_norm # 数据标准化方式
+data_norm: mean_norm # 数据标准化方式
 

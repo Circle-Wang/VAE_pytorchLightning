@@ -1,0 +1,20 @@
+nohup: ignoring input
+[2022-06-08 14:32:54,806][modelModule.model_interface][INFO] - VAE 模型初始化开始...
+GPU available: True, used: False
+TPU available: False, using: 0 TPU cores
+IPU available: False, using: 0 IPUs
+HPU available: False, using: 0 HPUs
+[2022-06-08 14:32:54,858][train][INFO] - Start training...
+[2022-06-08 14:32:55,952][modelModule.model_interface][INFO] - configure_optimizers 初始化开始...
+Adjusting learning rate of group 0 to 1.0000e-04.
+[2022-06-08 14:32:55,954][modelModule.model_interface][INFO] - configure_optimizers 初始化结束...
+
+  | Name  | Type | Params
+-------------------------------
+0 | model | VAE  | 248 K 
+-------------------------------
+248 K     Trainable params
+0         Non-trainable params
+248 K     Total params
+0.995     Total estimated model params size (MB)
+Sanity Checking: 0it [00:00, ?it/s]Sanity Checking:   0%|          | 0/2 [00:00<?, ?it/s]Sanity Checking DataLoader 0:   0%|          | 0/2 [00:00<?, ?it/s]Sanity Checking DataLoader 0: 100%|██████████| 2/2 [00:02<00:00,  1.10s/it]Sanity Checking DataLoader 0: 100%|██████████| 2/2 [00:02<00:00,  1.10s/it]                                                                           Training: 0it [00:00, ?it/s]Training:   0%|          | 0/79 [00:00<?, ?it/s]Epoch 0:   0%|          | 0/79 [00:00<?, ?it/s] Epoch 0:  25%|██▌       | 20/79 [00:26<01:18,  1.33s/it]Epoch 0:  25%|██▌       | 20/79 [00:26<01:18,  1.33s/it]Epoch 0:  25%|██▌       | 20/79 [00:26<01:18,  1.33s/it, loss=5.13e+03, v_num=1, train_loss_step=4.54e+3]Epoch 0:  51%|█████     | 40/79 [00:47<00:46,  1.18s/it, loss=5.13e+03, v_num=1, train_loss_step=4.54e+3]Epoch 0:  51%|█████     | 40/79 [00:47<00:46,  1.18s/it, loss=5.13e+03, v_num=1, train_loss_step=4.54e+3]Epoch 0:  51%|█████     | 40/79 [00:47<00:46,  1.18s/it, loss=3.89e+03, v_num=1, train_loss_step=3.32e+3]
