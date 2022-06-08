@@ -36,11 +36,11 @@ class MInterface(pl.LightningModule):
 
     def validation_step(self, batch, batch_idx):
         src_data, miss_data, M_matrix = batch['src_data'], batch['miss_data'], batch['miss_matrix']
-        normal_data = batch['normal_data']
-        Max_Val, Min_Val = batch['Max_Val'], batch['Min_Val']
+        # normal_data = batch['normal_data']
+        # Max_Val, Min_Val = batch['Max_Val'], batch['Min_Val']
         imputed_data, mu, log_var = self.model(miss_data, M_matrix)
         # imputed_data = restore_data(imputed_data, Max_Val, Min_Val)
-        loss = vae_loss(normal_data, imputed_data, M_matrix, mu, log_var)
+        loss = vae_loss(src_data, imputed_data, M_matrix, mu, log_var)
         self.log('val_loss', loss, on_epoch=True, prog_bar=True, logger=True)
 
 
