@@ -6,7 +6,7 @@ precision: 32
 max_epochs: 1000
 
 ############################   model ####################################
-batch_size: 128
+batch_size: 256
 version: 2
 ############################ optimizer ##################################
 optim: Adam                          # 可选优化器Adam、SGD
@@ -17,8 +17,11 @@ lr_scheduler: CosineAnnealingLR      # 可选CosineAnnealingLR、OneCycleLR、No
 checkpoint_path: 
 
 ############################ dataset ##################################
-dataset_name: 'Spam'
-train_data: /root/autodl-tmp/VAE_pytorchLightning/Spam_train.csv
-val_data: /root/autodl-tmp/VAE_pytorchLightning/Spam_test.csv
-dim: 57 # 数据特征维度
+dataset_name: 'Letter'
+train_data: /root/autodl-tmp/VAE_pytorchLightning/Letter_train.csv
+val_data: /root/autodl-tmp/VAE_pytorchLightning/Letter_test.csv
+dim: 16            # 数据特征维度
+nhead: 4           # 多头注意力机制的头数
+missing_ratio: 0.3 # 模拟缺失比率
+data_norm: minmax_norm # 数据标准化方式
 

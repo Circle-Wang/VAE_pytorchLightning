@@ -3,9 +3,10 @@ from torch import nn
 import torch.nn.functional as F
 
 class VAE(nn.Module):
-    def __init__(self, dim=57):
+    def __init__(self, dim=57, nhead=3):
         super(VAE, self).__init__()
         self.dim = dim
+        self.nhead = nhead
         # self.scale_parm = nn.Parameter(torch.randn(1, self.dim))
         # self.FClayer1 = nn.Linear(in_features=self.dim*2, out_features=self.dim)
         self.FClayers1 = nn.Sequential(
@@ -15,7 +16,7 @@ class VAE(nn.Module):
             nn.LeakyReLU(inplace=True),
             nn.Linear(128, self.dim),
         )
-        self.encoder_layer = nn.TransformerEncoderLayer(d_model=self.dim, nhead=3, dim_feedforward=256, batch_first=True)
+        self.encoder_layer = nn.TransformerEncoderLayer(d_model=self.dim, nhead=self.nhead, dim_feedforward=256, batch_first=True)
         self.encoder = nn.TransformerEncoder(self.encoder_layer, num_layers=6) # 输出为[batch, src, dim]
         self.FClayer_mu = nn.Linear(in_features=self.dim, out_features=30)  # 均值的输出[batch, src, dim]
         self.FClayer_std = nn.Linear(in_features=self.dim, out_features=30) # 方差的输出
@@ -23,7 +24,6 @@ class VAE(nn.Module):
         self.decoder_layer = nn.TransformerEncoderLayer(d_model=30, nhead=6, dim_feedforward=256, batch_first=True)
         self.decoder = nn.TransformerEncoder(self.decoder_layer, num_layers=6)
         self.FClayer2 = nn.Linear(in_features=30, out_features=self.dim)   # 把解码器得到的数据变成我们需要的数据
-
 
 
     def reparameterize(self, mu, log_var):

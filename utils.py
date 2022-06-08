@@ -1,9 +1,9 @@
 import numpy as np
 import torch
 
-def data_normalized(src_data):
+def minmax_norm(src_data):
     '''
-    对数据进行按列进行0-1正则化,使得每一个数据都处于[0,1]区间
+    对数据进行按列进行最大-最小正则化(减去最小值除以最大值),使得每一个数据都处于[0,1]区间
     '''
     data = src_data.copy()
     num, Dim = data.shape
@@ -17,10 +17,27 @@ def data_normalized(src_data):
         data[:,i] = data[:,i] / (np.max(data[:,i]) + 1e-6) # 除以最大值
     return data, Min_Val, Max_Val
 
+def mean_norm(src_data):
+    '''
+    对数据进行按列进行均值-标准差正则化(减去均值除以方差), 使得每一个数据都处于[0,1]区间
+    '''
+    data = src_data.copy()
+    num, Dim = data.shape
+    # 记录各列最大值,最小值用于返回得到插值结果
+    mean_Val = np.zeros(Dim) 
+    std_Val = np.zeros(Dim)
+    for i in range(Dim):
+        mean_Val[i] = np.mean(data[:,i]) 
+        data[:,i] = data[:,i] - np.mean(data[:,i])  # 减去最小值
+        std_Val[i] = np.std(data[:,i])
+        data[:,i] = data[:,i] / (np.std(data[:,i]) + 1e-8) # 除以最大值
+    return data, mean_Val, std_Val
+
+
 
 def get_missing(data, p_miss):
     '''
-    得到缺失缺失矩阵, 以及包含缺失数据的数据集, 缺失数据采用9999替代
+    得到缺失缺失矩阵(1代表存在数据,0代表缺失数据), 以及包含缺失数据的数据集, 缺失数据采用9999替代
     data: 完整数据
     p: 缺失概率
     return: 包含缺失数据的矩阵, Missing矩阵
@@ -38,7 +55,7 @@ def get_missing(data, p_miss):
 
 def restore_data(data, max_val, min_val):
     '''
-    根据列向量(属性)的最大值和最小值, 复原真正的数据
+    根据列向量(属性)的最大值(标准差)和最小值(均值), 复原真正的数据
     '''
     if isinstance(data, np.ndarray):
         res_data = np.zeros(data.shape)

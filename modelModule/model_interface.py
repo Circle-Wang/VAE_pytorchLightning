@@ -20,7 +20,7 @@ class MInterface(pl.LightningModule):
         self.args = args
         self.batch_size = self.args.batch_size
         self.learning_rate = self.args.lr
-        self.model = VAE(self.args.dim)
+        self.model = VAE(dim=self.args.dim, nhead=self.args.nhead)
 
         ## 参数初始化
         for m in self.model.modules():
