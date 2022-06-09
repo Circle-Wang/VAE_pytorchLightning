@@ -1,3 +1,4 @@
 版本1: 数据采用mean_norm
 版本2: 数据采用maxmin_norm
 版本3: 采用model2和loss2, 数据采用mean_norm方式
+版本4: 在版本3的基础上继续训练
