@@ -2,8 +2,9 @@ import pytorch_lightning as pl
 import torch
 from torch import nn
 
-from .model1 import VAE
-from loss_function import vae_loos2
+# from .model1 import VAE
+from .model2 import VAE2
+from loss_function import vae_loss_2
 from utils import restore_data
 
 import warnings
@@ -20,7 +21,7 @@ class MInterface(pl.LightningModule):
         self.args = args
         self.batch_size = self.args.batch_size
         self.learning_rate = self.args.lr
-        self.model = VAE(dim=self.args.dim, nhead=self.args.nhead)
+        self.model = VAE2(dim=self.args.dim, nhead=self.args.nhead)
 
         ## 参数初始化
         for m in self.model.modules():
@@ -30,7 +31,7 @@ class MInterface(pl.LightningModule):
     def training_step(self, batch, batch_idx):
         normal_data, miss_data, M_matrix = batch['normal_data'], batch['miss_data'], batch['miss_matrix']
         imputed_data, mu, log_var = self.model(miss_data, M_matrix)
-        loss, MSE_loss, kl_div = vae_loos2(normal_data, imputed_data, M_matrix, mu, log_var)
+        loss, MSE_loss, kl_div = vae_loss_2(normal_data, imputed_data, M_matrix, mu, log_var)
         self.log('train_loss', loss, on_epoch=True, on_step=True, prog_bar=True, logger=True)
         self.log('kl_div', kl_div, on_epoch=True, on_step=False, prog_bar=True, logger=True)
         self.log('MSE_loss', MSE_loss, on_epoch=True, on_step=False, prog_bar=True, logger=True)
@@ -38,11 +39,11 @@ class MInterface(pl.LightningModule):
 
     def validation_step(self, batch, batch_idx):
         src_data, miss_data, M_matrix = batch['src_data'], batch['miss_data'], batch['miss_matrix']
-        # normal_data = batch['normal_data']
+        normal_data = batch['normal_data']
         # Max_Val, Min_Val = batch['Max_Val'], batch['Min_Val']
         imputed_data, mu, log_var = self.model(miss_data, M_matrix)
         # imputed_data = restore_data(imputed_data, Max_Val, Min_Val)
-        loss, MSE_loss, _ = vae_loos2(src_data, imputed_data, M_matrix, mu, log_var)
+        loss, MSE_loss, _ = vae_loss_2(normal_data, imputed_data, M_matrix, mu, log_var)
         self.log('val_loss', loss, on_epoch=True, prog_bar=True, logger=True)
         self.log('val_MSE_loss', MSE_loss, on_epoch=True, prog_bar=True, logger=True)
 
