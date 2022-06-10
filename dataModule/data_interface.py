@@ -14,7 +14,6 @@ class DInterface(pl.LightningDataModule):
                                     data_norm=self.args.data_norm)
         self.valid_set = FlatDataset(self.args.val_data,
                                     missing_ratio=self.args.missing_ratio,
-                                    is_test=True,
                                     data_norm=self.args.data_norm)
     
     def train_dataloader(self):

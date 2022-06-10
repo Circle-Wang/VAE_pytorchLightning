@@ -7,10 +7,9 @@ class FlatDataset(torch.utils.data.Dataset):
     '''
     根据完整数据,得到缺失矩阵, 并对矩阵进行[0,1)区间的标准化,返回不含随机数的缺失数组
     '''
-    def __init__(self, csv_file, missing_ratio=0.3, is_test=False, data_norm='minmax_norm'):
+    def __init__(self, csv_file, missing_ratio=0.3, data_norm='minmax_norm'):
         self.csv_file = csv_file
         self.missing_ratio = missing_ratio
-        self.is_test = is_test
         if data_norm == 'minmax_norm':
             self.data_norm = minmax_norm
         elif data_norm == 'mean_norm':
@@ -19,9 +18,6 @@ class FlatDataset(torch.utils.data.Dataset):
         self.data = np.loadtxt(self.csv_file, delimiter=",", skiprows=1)
         self.global_normal_data, self.Min_Val, self.Max_Val = self.data_norm(self.data)
 
-        # if self.is_test:
-        #     self.normal_data, self.Min_Val, self.Max_Val = self.data_norm(self.data)
-        #     self.missing_data, self.Missing = get_missing(self.normal_data, missing_ratio) # 列缺失率为0.3
 
     def __len__(self):
         return len(self.data)

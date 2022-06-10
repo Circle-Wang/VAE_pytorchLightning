@@ -45,6 +45,9 @@ class VAE2(nn.Module):
             ) # 把解码器得到的数据变成我们需要的数据
 
     def get_global_min_max(self, global_max, global_min):
+        '''
+        获取训练集正则化参数
+        '''
         self.global_max = global_max
         self.global_min = global_min
 
@@ -80,7 +83,9 @@ class VAE2(nn.Module):
 
     def inference(self, miss_date, Missing):
         '''
+        使用模型对缺失数据进行插补
         miss_data: 是包含nan的np数组
+        Missing: 是缺失矩阵
         '''
         ## 将数据正则化
         res_data = np.zeros(miss_date.shape)
