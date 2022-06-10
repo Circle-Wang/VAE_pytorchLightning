@@ -1,6 +1,8 @@
 import torch
 from torch import nn
 import torch.nn.functional as F
+import numpy as np
+from utils import restore_data
 
 class VAE(nn.Module):
     def __init__(self, dim=57, nhead=3):
@@ -25,6 +27,12 @@ class VAE(nn.Module):
         self.decoder = nn.TransformerEncoder(self.decoder_layer, num_layers=6)
         self.FClayer2 = nn.Linear(in_features=30, out_features=self.dim)   # 把解码器得到的数据变成我们需要的数据
 
+    def get_global_min_max(self, global_max, global_min):
+        '''
+        获取训练集正则化参数
+        '''
+        self.global_max = global_max
+        self.global_min = global_min
 
     def reparameterize(self, mu, log_var):
         '''
@@ -54,4 +62,22 @@ class VAE(nn.Module):
         # out = out * self.scale_parm
         return out, mu, log_var
 
+    def inference(self, miss_date, Missing):
+        '''
+        使用模型对缺失数据进行插补
+        miss_data: 是包含nan的np数组(没有正则化的)
+        Missing: 是缺失矩阵
+        return: 复原后的完整数据, 模型直接输出结果
+        '''
+        ## 将数据正则化
+        res_data = np.zeros(miss_date.shape)
+        for i in range(len(miss_date)):
+            res_data[i,:] = (miss_date[i,:] - self.global_min) / self.global_max
 
+        ## 将缺失部分采用999填充
+        input_data = np.nan_to_num(res_data, nan=9999)
+        output, _, _ = self.forward(torch.from_numpy(input_data).float(), torch.from_numpy(Missing).float())
+
+        ## 输出完整数据
+        imputed_data = restore_data(output.detach().numpy(), self.global_max, self.global_min)
+        return imputed_data, output

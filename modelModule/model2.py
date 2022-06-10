@@ -84,8 +84,9 @@ class VAE2(nn.Module):
     def inference(self, miss_date, Missing):
         '''
         使用模型对缺失数据进行插补
-        miss_data: 是包含nan的np数组
+        miss_data: 是包含nan的np数组(没有正则化的)
         Missing: 是缺失矩阵
+        return: 复原后的完整数据, 模型直接输出结果
         '''
         ## 将数据正则化
         res_data = np.zeros(miss_date.shape)
@@ -94,12 +95,11 @@ class VAE2(nn.Module):
 
         ## 将缺失部分采用999填充
         input_data = np.nan_to_num(res_data, nan=9999)
-        print(input_data)
-        imputed_data, _, _ = self.forward(torch.from_numpy(input_data).float(), torch.from_numpy(Missing).float())
+        output, _, _ = self.forward(torch.from_numpy(input_data).float(), torch.from_numpy(Missing).float())
 
         ## 输出完整数据
-        res_imputed_data = restore_data(imputed_data.detach().numpy(), self.global_max, self.global_min)
-        return res_imputed_data
+        imputed_data = restore_data(output.detach().numpy(), self.global_max, self.global_min)
+        return imputed_data, output
         
 
 
