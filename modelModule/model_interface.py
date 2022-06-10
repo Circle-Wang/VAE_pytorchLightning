@@ -48,7 +48,6 @@ class MInterface(pl.LightningModule):
         self.log('val_MSE_loss', MSE_loss, on_epoch=True, prog_bar=True, logger=True)
 
 
-
     ## 优化器配置
     def configure_optimizers(self):
         logger.info('configure_optimizers 初始化开始...')
