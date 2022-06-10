@@ -2,7 +2,7 @@ import pytorch_lightning as pl
 import torch
 from torch import nn
 
-# from .model1 import VAE
+from .model1 import VAE
 from .model2 import VAE2
 from loss_function import vae_loss_2
 from utils import restore_data
@@ -21,7 +21,10 @@ class MInterface(pl.LightningModule):
         self.args = args
         self.batch_size = self.args.batch_size
         self.learning_rate = self.args.lr
-        self.model = VAE2(dim=self.args.dim, nhead=self.args.nhead)
+        if self.args.model_type == 'model1':
+            self.model = VAE(dim=self.args.dim, nhead=self.args.nhead)
+        elif self.args.model_type == 'model2':
+            self.model = VAE2(dim=self.args.dim, nhead=self.args.nhead)
 
         ## 参数初始化
         for m in self.model.modules():

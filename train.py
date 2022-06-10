@@ -17,7 +17,7 @@ def main(hparams):
     model = MInterface(hparams)
     dataloader = DInterface(hparams)
     
-    tfname = f'{hparams.dataset_name} lr {hparams.lr} lr_scheduler {hparams.lr_scheduler}'.replace(
+    tfname = f'{hparams.dataset_name} {hparams.model_type} norm_way {hparams.data_norm} '.replace(
         ' ', '_').replace('.', '_') # 储存模型相关参数以及tensorboard的路径
     # 设置回调函数
     lr_monitor = LearningRateMonitor() # 记录学习率回调函数
