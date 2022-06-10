@@ -29,18 +29,16 @@ class FlatDataset(torch.utils.data.Dataset):
         '''
         src_data_batch = np.stack([s['src_data'] for s in samples], axis=0)       # batch中样本的原数据集
         normal_data_batch = np.stack([s['global_normal_data'] for s in samples], axis=0)
-
         miss_data_batch, M_batch = get_missing(normal_data_batch, self.missing_ratio)   # 得到缺失矩阵
-        # miss_data_batch = np.stack([s['miss_data'] for s in samples], axis=0)     # batch中样本的缺失数据集合
-        # M_batch = np.stack([s['miss_matrix'] for s in samples], axis=0) # batch中样本的缺失矩阵
+        # miss_data:缺失部分采用9999来补全
 
         return {
             "src_data": torch.from_numpy(src_data_batch).float(),
             'normal_data': torch.from_numpy(normal_data_batch).float(),
-            "miss_data": torch.from_numpy(miss_data_batch).float(),
+            "miss_data": torch.from_numpy(miss_data_batch).float(), 
             'miss_matrix': torch.from_numpy(M_batch).float(),
-            # 'Min_Val': torch.from_numpy(Min_Val_batch).float(),
-            # 'Max_Val': torch.from_numpy(Max_Val_batch).float(),
+            'global_max': torch.from_numpy(self.Max_Val).float(),
+            'global_min': torch.from_numpy(self.Min_Val).float(),
         }
     
     def __getitem__(self, index):

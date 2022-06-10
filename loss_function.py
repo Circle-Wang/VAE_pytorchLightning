@@ -15,5 +15,5 @@ def vae_loss_2(src_data, imputed_data, M, mu, log_var):
     '''
     MSE_loss = torch.sum(M * src_data - M * imputed_data)**2 / torch.sum(M)
     kl_div = - 0.5 * torch.sum(1 + log_var - mu.pow(2) - log_var.exp())
-    train_loss = MSE_loss*1000 + kl_div
-    return train_loss, MSE_loss*1000, kl_div
+    train_loss = MSE_loss*10 + kl_div
+    return train_loss, MSE_loss*10, kl_div
