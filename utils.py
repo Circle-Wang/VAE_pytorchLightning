@@ -11,10 +11,9 @@ def minmax_norm(src_data):
     Min_Val = np.zeros(Dim) 
     Max_Val = np.zeros(Dim)
     for i in range(Dim):
-        Min_Val[i] = np.min(data[:,i]) 
-        data[:,i] = data[:,i] - np.min(data[:,i]) # 减去最小值
-        Max_Val[i] = np.max(data[:,i])
-        data[:,i] = data[:,i] / (np.max(data[:,i]) + 1e-6) # 除以最大值
+        Min_Val[i] = np.min(src_data[:,i])
+        Max_Val[i] = np.max(src_data[:,i])
+        data[:,i] = (src_data[:,i] - np.min(src_data[:,i]))/(np.max(src_data[:,i]) + 1e-6) # 减去最小值
     return data, Min_Val, Max_Val
 
 def mean_norm(src_data):
@@ -27,10 +26,9 @@ def mean_norm(src_data):
     mean_Val = np.zeros(Dim) 
     std_Val = np.zeros(Dim)
     for i in range(Dim):
-        mean_Val[i] = np.mean(data[:,i]) 
-        data[:,i] = data[:,i] - np.mean(data[:,i])  # 减去最小值
-        std_Val[i] = np.std(data[:,i])
-        data[:,i] = data[:,i] / (np.std(data[:,i]) + 1e-8) # 除以最大值
+        mean_Val[i] = np.mean(src_data[:,i])
+        std_Val[i] = np.std(src_data[:,i])
+        data[:,i] = src_data[:,i] - np.mean(src_data[:,i]) / (np.std(src_data[:,i]) + 1e-8)  # 减去最小值
     return data, mean_Val, std_Val
 
 
