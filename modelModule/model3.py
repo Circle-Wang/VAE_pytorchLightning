@@ -4,44 +4,50 @@ import torch.nn.functional as F
 import numpy as np
 from utils import restore_data
 
-class VAE2(nn.Module):
+class VAE3(nn.Module):
     def __init__(self, dim=57, nhead=3):
-        super(VAE2, self).__init__()
+        super(VAE3, self).__init__()
         self.dim = dim
         self.nhead = nhead
+    
         self.FClayers1 = nn.Sequential(
-            nn.Linear(self.dim*2, 512),
+            nn.Linear(self.dim*2, self.dim),
             nn.LeakyReLU(inplace=True),
-            nn.Linear(512, 256),
-            nn.LeakyReLU(inplace=True),
-            nn.Linear(256, self.dim),
+            nn.Linear(self.dim, self.dim),
         )
-        self.encoder_layer = nn.TransformerEncoderLayer(d_model=self.dim, nhead=self.nhead, dim_feedforward=512, batch_first=True)
-        self.encoder = nn.TransformerEncoder(self.encoder_layer, num_layers=6) # 输出为[batch, src, dim]
+        self.embedding1 = nn.Linear(1, 128)
+        self.embedding2 = nn.Linear(1, 128)
+
+        self.encoder_layer = nn.TransformerEncoderLayer(d_model=128, nhead=8, dim_feedforward=512, batch_first=True)
+        self.encoder = nn.TransformerEncoder(self.encoder_layer, num_layers=6) # 输出为[batch, 256, 128]
 
         self.FClayer_mu = nn.Sequential(
-            nn.Linear(self.dim, 128),
+            nn.Linear(self.dim, self.dim*2),
             nn.LeakyReLU(inplace=True),
-            nn.Linear(128, 128),
-            )  # 均值的输出[batch, src, dim]
+            nn.Linear(self.dim*2, self.dim),
+            )  # 均值的输出
+
         self.FClayer_std = nn.Sequential(
-            nn.Linear(self.dim, 128),
+            nn.Linear(self.dim, self.dim*2),
             nn.LeakyReLU(inplace=True),
-            nn.Linear(128, 128),
+            nn.Linear(self.dim*2, self.dim)
             )  # 方差的输出
 
+        self.max_pool1 = nn.AdaptiveMaxPool1d(output_size=1) # 全局池化
+        self.max_pool2 = nn.AdaptiveMaxPool1d(output_size=1) # 全局池化 
+
         self.FClayers2 = nn.Sequential(
-            nn.Linear(self.dim+128, 128),
+            nn.Linear(self.dim*2, self.dim),
             nn.LeakyReLU(inplace=True),
-            nn.Linear(128, 128),
-            ) # 用于连接编码器输出变量h以及生成的随机数z
+            nn.Linear(self.dim, self.dim),
+            )
 
         self.decoder_layer = nn.TransformerEncoderLayer(d_model=128, nhead=8, dim_feedforward=512, batch_first=True)
         self.decoder = nn.TransformerEncoder(self.decoder_layer, num_layers=6)
         self.FClayers3 = nn.Sequential(
-            nn.Linear(128, self.dim),
+            nn.Linear(self.dim, self.dim*4),
             nn.LeakyReLU(inplace=True),
-            nn.Linear(self.dim, self.dim),
+            nn.Linear(self.dim*4, self.dim),
             ) # 把解码器得到的数据变成我们需要的数据
 
     def get_global_min_max(self, global_max, global_min):
@@ -65,20 +71,24 @@ class VAE2(nn.Module):
         M_matrix: 缺失矩阵
         output: (batch, dim), 隐变量的均值, 隐变量的方差
         '''
-        input = torch.cat(dim = 1, tensors = (miss_data, M_matrix)).unsqueeze (0) # [batch, dim, 1]
-        input = self.FClayers1(input) # 将缺失矩阵和缺失数据联系起来
+        input = torch.cat(dim = 1, tensors = (miss_data, M_matrix))
+        input = self.embedding1(self.FClayers1(input).unsqueeze (-1))  # 将缺失矩阵和缺失数据联系起来 [batch, dim, 128]
 
-        h = self.encoder(input) # 得到隐藏层
-        mu = self.FClayer_mu(h) # 得到均值
-        log_var = self.FClayer_std(h) # 得到方差
+        h = self.encoder(input) # 得到隐藏层 [batch, dim, 128]
+        h = self.max_pool1(h).squeeze(-1)    # 全局最大池化 [batch, dim]
 
-        z = self.reparameterize(mu, log_var) # 得到隐藏变量 [1, batch, 128]
+        mu = self.FClayer_mu(h)       # 得到均值   [batch, dim]
+        log_var = self.FClayer_std(h) # 得到方差   [batch, dim]
 
-        out = self.FClayers2(torch.cat(dim = -1, tensors = (z, h)))
-        out = self.decoder(out)
-        out = self.FClayers3(out).squeeze(-1) # [batch, dim]
-        # out = torch.sigmoid(self.FClayers3(out)).squeeze(0) # [batch, dim]
-        # out = out * self.scale_parm
+        z = self.reparameterize(mu, log_var) # 得到隐藏变量 [batch, dim]
+
+        decoder_input = torch.cat(dim = 1, tensors = (z, M_matrix)) # [batch, dim*2]
+        decoder_input = self.embedding2(self.FClayers2(decoder_input).unsqueeze (-1))
+
+        decoder_out = self.decoder(decoder_input)     # [batch, dim, 128]
+        out = self.max_pool2(decoder_out).squeeze(-1) # [batch, dim]
+        out = self.FClayers3(out)
+
         return out, mu, log_var
 
     def inference(self, miss_date, Missing):
