@@ -7,14 +7,14 @@ max_epochs: 1000
 
 ############################   model ####################################
 batch_size: 256
-version: 4
+version: 1
 ############################ optimizer ##################################
 optim: Adam                          # 可选优化器Adam、SGD
 lr: 1e-4                             # 学习率
 lr_scheduler: CosineAnnealingLR      # 可选CosineAnnealingLR、OneCycleLR、None
 
 ############################ load checkpoint path ###################
-checkpoint_path: /root/autodl-tmp/VAE_pytorchLightning/模型参数保存/Letter_lr_0_0001_lr_scheduler_CosineAnnealingLR/version_3/checkpoints/epoch=49-step=3150.ckpt
+checkpoint_path:
 
 ############################ dataset ##################################
 dataset_name: 'Letter'
