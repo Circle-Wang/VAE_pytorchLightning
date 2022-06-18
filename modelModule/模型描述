@@ -18,3 +18,11 @@ model3: 框架改进版本
     - 把out增加一个维度得到[batch, dim, 1]，同样经过一个embedding层(线性层)将最后的1维度扩充为[batch, dim, 128](out)
     - 把上步得到的out放入解码器(多头注意了)得到输出[batch, dim, 128]，同样进行max_pool后得到[batch, dim](out)
     - 把out经过一个双层FC之后得到最终输出(最终结果没有经过sigmoid激活)。
+
+model4: model3的改进版
+    - 将miss_date和Missing矩阵cat后通过2层FC融合(采用LeakyReLu激活)，并在第2维度上进行扩充得到[batch, 1, dim]
+    - embedding层使用的是一维度卷积(1*1), 输出通道是128维度, 再通过置换最后两个维度，从而得到[batch, dim, 128](input)
+    - 后续内容相model3没有改动得到，z=[batch, dim]
+    - 将z和h进行cat得到[batch, dim*2], 将cat后的数据经过FC层得到[batch, dim](out)
+    - 把out增加一个维度得到[batch, 1, dim]，同样经过一个采用卷积的embedding层，并进行维度置换得到[batch, dim, 128](out)
+    - 后续操作不变

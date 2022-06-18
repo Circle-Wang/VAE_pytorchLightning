@@ -4,19 +4,18 @@ import torch.nn.functional as F
 import numpy as np
 from utils import restore_data
 
-class VAE3(nn.Module):
+class VAE4(nn.Module):
     def __init__(self, dim=57, nhead=3):
-        super(VAE3, self).__init__()
+        super(VAE4, self).__init__()
         self.dim = dim
-
     
         self.FClayers1 = nn.Sequential(
             nn.Linear(self.dim*2, self.dim),
             nn.LeakyReLU(inplace=True),
             nn.Linear(self.dim, self.dim),
         )
-        self.embedding1 = nn.Linear(1, 128)
-        self.embedding2 = nn.Linear(1, 128)
+        self.embedding1 = nn.Conv1d(in_channels=1, out_channels=128, kernel_size=1, stride=1)
+        self.embedding2 = nn.Conv1d(in_channels=1, out_channels=128, kernel_size=1, stride=1)
 
         self.encoder_layer = nn.TransformerEncoderLayer(d_model=128, nhead=8, dim_feedforward=512, batch_first=True)
         self.encoder = nn.TransformerEncoder(self.encoder_layer, num_layers=6) 
@@ -72,7 +71,8 @@ class VAE3(nn.Module):
         output: (batch, dim), 隐变量的均值, 隐变量的方差
         '''
         input = torch.cat(dim = 1, tensors = (miss_data, M_matrix))
-        input = self.embedding1(self.FClayers1(input).unsqueeze (-1))  # 将缺失矩阵和缺失数据联系起来 [batch, dim, 128]
+        input = self.FClayers1(input).unsqueeze (1)  # 将缺失矩阵和缺失数据联系起来 [batch, 1, dim]
+        input = self.embedding1(input).permute(0, 2, 1) # [batch, dim, out_channels] 
 
         h = self.encoder(input) # 得到隐藏层 [batch, dim, 128]
         h = self.max_pool1(h).squeeze(-1)    # 全局最大池化 [batch, dim]
@@ -82,8 +82,9 @@ class VAE3(nn.Module):
 
         z = self.reparameterize(mu, log_var) # 得到隐藏变量 [batch, dim]
 
-        decoder_input = torch.cat(dim = 1, tensors = (z, M_matrix)) # [batch, dim*2]
-        decoder_input = self.embedding2(self.FClayers2(decoder_input).unsqueeze (-1))
+        decoder_input = torch.cat(dim = 1, tensors = (z, h))        # [batch, dim*2]
+        decoder_input = self.FClayers2(decoder_input).unsqueeze (1) # [batch, 1, dim]
+        decoder_input = self.embedding2(decoder_input).permute(0, 2, 1) # [batch, dim, 128] 
 
         decoder_out = self.decoder(decoder_input)     # [batch, dim, 128]
         out = self.max_pool2(decoder_out).squeeze(-1) # [batch, dim]
