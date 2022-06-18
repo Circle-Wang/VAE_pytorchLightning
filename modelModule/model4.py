@@ -5,7 +5,7 @@ import numpy as np
 from utils import restore_data
 
 class VAE4(nn.Module):
-    def __init__(self, dim=57, nhead=3):
+    def __init__(self, dim=57):
         super(VAE4, self).__init__()
         self.dim = dim
     

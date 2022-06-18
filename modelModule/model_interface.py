@@ -5,6 +5,7 @@ from torch import nn
 from .model1 import VAE
 from .model2 import VAE2
 from .model3 import VAE3
+from .model4 import VAE4
 from loss_function import vae_loss_2
 
 
@@ -28,6 +29,8 @@ class MInterface(pl.LightningModule):
             self.model = VAE2(dim=self.args.dim, nhead=self.args.nhead)
         elif self.args.model_type == 'model3':
             self.model = VAE3(dim=self.args.dim, nhead=self.args.nhead)
+        elif self.args.model_type == 'model4':
+            self.model = VAE4(dim=self.args.dim)
 
         ## 参数初始化
         for m in self.model.modules():
