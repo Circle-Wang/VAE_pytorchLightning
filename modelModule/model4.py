@@ -14,6 +14,7 @@ class VAE4(nn.Module):
             nn.LeakyReLU(inplace=True),
             nn.Linear(self.dim, self.dim),
         )
+        
         self.embedding1 = nn.Conv1d(in_channels=1, out_channels=128, kernel_size=1, stride=1)
         self.embedding2 = nn.Conv1d(in_channels=1, out_channels=128, kernel_size=1, stride=1)
 
