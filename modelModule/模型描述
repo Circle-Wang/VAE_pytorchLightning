@@ -1,0 +1,20 @@
+model1: 基础模型
+    - 直接将miss_date和Missing矩阵cat后通过单层FC接融合, 并在第一维度上进行扩充[1, batch, dim].
+    - 再采用多头注意力层编码器进行前向传播得到h, 使用两个单层FC层得到均值和方差维度为[1, batch, 30], 通过均值和方差得到随机数z([1, batch, 30]) 
+    - 将z单独放入解码器(多头注意力解码器)中得到out, 将out放入单层FC中维度得到[1，batch，dim]，取消第一维度，并使用sigmoid激活，直接输出out
+
+model2: 复杂版model1
+    - 将miss_date和Missing矩阵cat后通过3层FC融合(采用LeakyReLu激活)，并在第一维度上进行扩充得到[1, batch, dim]
+    - 编码器进行前向传播得到h，把h放入两个双层FC得到mu和std维度为[1, batch, 128]，进而得到随机数Z(维度为[1, batch, 128])
+    - 将z和h按最后一个维度进行cat得到[1, batch, dim+128], 将cat后的数据放入一个双层FC中，从而得到out[1, batch, 128]
+    - 把out放入解码器(多头注意力解码器), 将解码器的结果经过双层FC，最后输出结果(最终结果没有经过sigmoid激活)。
+
+model3: 框架改进版本
+    - 将miss_date和Missing矩阵cat后通过2层FC融合(采用LeakyReLu激活)，并在第最后1维度上进行扩充得到[batch, dim, 1]
+    - 采用了一个embedding层(线性层)将最后的1维度扩充为[batch, dim, 128](input)
+    - input放入编码器中得到输出[batch, dim, 128]，之后采用全局max_pool,得到h=[batch, dim]
+    - h经过mu层(2层FC)得到mu，经过std层(2层FC)得到std，通过mu和std得到随机数z=[batch, dim]
+    - 将z和M_matrix融合cat得到[batch, dim*2], 将cat后的数据经过FC层得到[batch, dim](out)
+    - 把out增加一个维度得到[batch, dim, 1]，同样经过一个embedding层(线性层)将最后的1维度扩充为[batch, dim, 128](out)
+    - 把上步得到的out放入解码器(多头注意了)得到输出[batch, dim, 128]，同样进行max_pool后得到[batch, dim](out)
+    - 把out经过一个双层FC之后得到最终输出(最终结果没有经过sigmoid激活)。

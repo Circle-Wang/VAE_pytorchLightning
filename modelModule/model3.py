@@ -19,7 +19,7 @@ class VAE3(nn.Module):
         self.embedding2 = nn.Linear(1, 128)
 
         self.encoder_layer = nn.TransformerEncoderLayer(d_model=128, nhead=8, dim_feedforward=512, batch_first=True)
-        self.encoder = nn.TransformerEncoder(self.encoder_layer, num_layers=6) # 输出为[batch, 256, 128]
+        self.encoder = nn.TransformerEncoder(self.encoder_layer, num_layers=6) 
 
         self.FClayer_mu = nn.Sequential(
             nn.Linear(self.dim, self.dim*2),

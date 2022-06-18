@@ -65,18 +65,18 @@ class VAE2(nn.Module):
         M_matrix: 缺失矩阵
         output: (batch, dim), 隐变量的均值, 隐变量的方差
         '''
-        input = torch.cat(dim = 1, tensors = (miss_data, M_matrix)).unsqueeze (0) # [batch, dim, 1]
-        input = self.FClayers1(input) # 将缺失矩阵和缺失数据联系起来
+        input = torch.cat(dim = 1, tensors = (miss_data, M_matrix)).unsqueeze (0) # [batch, dim*2]
+        input = self.FClayers1(input) # 将缺失矩阵和缺失数据联系起来 [1, batch, dim]
 
-        h = self.encoder(input) # 得到隐藏层
-        mu = self.FClayer_mu(h) # 得到均值
-        log_var = self.FClayer_std(h) # 得到方差
+        h = self.encoder(input) # 得到隐藏层 [1, batch, dim]
+        mu = self.FClayer_mu(h) # 得到均值 [1, batch, 128]
+        log_var = self.FClayer_std(h) # 得到方差 [1, batch, 128]
 
         z = self.reparameterize(mu, log_var) # 得到隐藏变量 [1, batch, 128]
 
-        out = self.FClayers2(torch.cat(dim = -1, tensors = (z, h)))
-        out = self.decoder(out)
-        out = self.FClayers3(out).squeeze(-1) # [batch, dim]
+        out = self.FClayers2(torch.cat(dim = -1, tensors = (z, h))) # [1, batch, 128]
+        out = self.decoder(out)              # [1, batch, 128]
+        out = self.FClayers3(out).squeeze(0) # [batch, dim]
         # out = torch.sigmoid(self.FClayers3(out)).squeeze(0) # [batch, dim]
         # out = out * self.scale_parm
         return out, mu, log_var
