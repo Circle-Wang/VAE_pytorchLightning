@@ -19,8 +19,8 @@ checkpoint_path:
 
 ############################ dataset ##################################
 dataset_name: 'Credit'
-train_data: /root/autodl-tmp/VAE_pytorchLightning/Credit_Card无标签.csv
-val_data: /root/autodl-tmp/VAE_pytorchLightning/Credit_Card无标签.csv
+train_data: /root/autodl-tmp/VAE_pytorchLightning/Credit_Card_test.csv
+val_data: /root/autodl-tmp/VAE_pytorchLightning/Credit_Card_test.csv
 dim: 23            # 数据特征维度
 nhead: 3           # 多头注意力机制的头数
 missing_ratio: 0.3 # 模拟缺失比率
