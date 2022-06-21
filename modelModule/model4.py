@@ -72,7 +72,7 @@ class VAE4(nn.Module):
         output: (batch, dim), 隐变量的均值, 隐变量的方差
         '''
         input = torch.cat(dim = 1, tensors = (miss_data, M_matrix))
-        input = self.FClayers1(input).unsqueeze (1)  # 将缺失矩阵和缺失数据联系起来 [batch, 1, dim]
+        input = self.FClayers1(input).unsqueeze (1)     # 将缺失矩阵和缺失数据联系起来 [batch, 1, dim]
         input = self.embedding1(input).permute(0, 2, 1) # [batch, dim, out_channels] 
 
         h = self.encoder(input) # 得到隐藏层 [batch, dim, 128]
