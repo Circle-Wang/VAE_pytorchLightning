@@ -36,20 +36,23 @@ class VAE5(nn.Module):
         self.encoder = nn.TransformerEncoder(self.encoder_layer, num_layers=6) 
 
         self.FClayer_mu = nn.Sequential(
-            nn.Linear(128, 128),
+            nn.Linear(self.dim, self.dim*2),
+            nn.LeakyReLU(inplace=True),
+            nn.Linear(self.dim*2, self.dim),
             )  # 均值的输出
 
         self.FClayer_std = nn.Sequential(
-            nn.Linear(128, 128),
+            nn.Linear(self.dim, self.dim*2),
+            nn.LeakyReLU(inplace=True),
+            nn.Linear(self.dim*2, self.dim)
             )  # 方差的输出
 
-        self.max_pool1 = nn.AdaptiveMaxPool1d(output_size=1) # 全局池化
-        self.max_pool2 = nn.AdaptiveMaxPool1d(output_size=1) # 全局池化 
+        self.max_pool = nn.AdaptiveMaxPool1d(output_size=1) # 全局池化
 
         self.decoder = nn.Sequential(
-            nn.Linear(128*2, 128),
-            nn.LeakyReLU(inplace=True),
-            nn.Linear(128, 128),
+            nn.Linear(self.dim*2, self.dim),
+            nn.LeakyReLU(),
+            nn.Linear(self.dim, self.dim),
             ) # 解码器
 
 
@@ -88,15 +91,15 @@ class VAE5(nn.Module):
         encoder_input = embedding_out * Miss_bool + (1 - Miss_bool) * self.Nan_feature # 将缺失数值替换为NAN
 
         h = self.encoder(encoder_input)              # 得到隐藏层 [batch, dim, 128]
-        # h = self.max_pool1(h).squeeze(-1)          # 全局最大池化 [batch, dim]
+        h = self.max_pool(h).squeeze(-1)          # 全局最大池化 [batch, dim]
 
-        mu = self.FClayer_mu(h)       # 得到均值   [batch, dim, 128]
-        log_var = self.FClayer_std(h) # 得到方差   [batch, dim, 128]
+        mu = self.FClayer_mu(h)       # 得到均值   [batch, dim]
+        log_var = self.FClayer_std(h) # 得到方差   [batch, dim]
 
-        z = self.reparameterize(mu, log_var) # 得到隐藏变量 [batch, dim, 128]
+        z = self.reparameterize(mu, log_var) # 得到隐藏变量 [batch, dim]
 
-        decoder_input = torch.cat(dim = -1, tensors = (z, h))        # [batch, dim, 128*2]
-        decoder_out = self.decoder(decoder_input)     # [batch, dim, 128]
+        decoder_input = torch.cat(dim = -1, tensors = (z, h))        # [batch, dim]
+        decoder_out = self.decoder(decoder_input)     # [batch, dim]
 
         return decoder_out, mu, log_var
 

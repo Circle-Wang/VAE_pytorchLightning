@@ -7,6 +7,7 @@ max_epochs: 1000
 
 ############################   model ####################################
 model_type: model4
+pro_type_file: Letter_pro_type.pkl
 batch_size: 256
 version: 1
 ############################ optimizer ##################################
@@ -18,11 +19,11 @@ lr_scheduler: CosineAnnealingLR      # 可选CosineAnnealingLR、OneCycleLR、No
 checkpoint_path:
 
 ############################ dataset ##################################
-dataset_name: 'Credit'
-train_data: /root/autodl-tmp/VAE_pytorchLightning/Credit_Card_test.csv
-val_data: /root/autodl-tmp/VAE_pytorchLightning/Credit_Card_test.csv
-dim: 23            # 数据特征维度
+dataset_name: 'Letter'
+train_data: /root/autodl-tmp/VAE_pytorchLightning/Letter_train.csv
+val_data: /root/autodl-tmp/VAE_pytorchLightning/Letter_test.csv
+dim: 16            # 数据特征维度
 nhead: 3           # 多头注意力机制的头数
 missing_ratio: 0.3 # 模拟缺失比率
-data_norm: mean_norm # 数据标准化方式
+data_norm: minmax_norm # 数据标准化方式
 
