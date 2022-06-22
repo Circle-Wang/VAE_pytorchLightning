@@ -25,3 +25,8 @@ model4: model3的改进版
     - 后续内容相model3没有改动得到，z=[batch, dim]
     - 将z和h进行cat得到[batch, dim*2], 将cat后的数据经过FC层得到[batch, dim](out)
     - 把out增加一个维度得到[batch, 1, dim]，同样经过一个采用卷积的embedding层，并进行维度置换得到[batch, dim, 128](out)
+
+model5: 将离散数据与连续数据进行结合
+    - 针对属性中出现的离散数据个数制造不同的embedding,将其映射到128维空间中, 针对连续数据则使用一维卷积,不同属性采用不同的卷积,也将数据映射至128维空间中
+    - 经过多头注意力机制的encoder之后得到结果h，经过max_pooling之后得到h=[batch, dim]
+    - 通过两层FC得到z，结合z和h，并通过解码器最终得到最后结果(解码器采用多层FC), sigmold最后进行激活

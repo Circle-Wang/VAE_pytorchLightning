@@ -83,7 +83,7 @@ class VAE5(nn.Module):
         embedding_out = torch.tensor([])
         for i, embedding in enumerate(self.embeddings):
             if isinstance(embedding, nn.Embedding):
-                embedding_out = torch.cat((embedding_out, embedding(input[:, i].reshape(-1,1))), dim = 1)
+                embedding_out = torch.cat((embedding_out, embedding(input[:, i].long().reshape(-1,1))), dim = 1)
             else:
                 embedding_out = torch.cat((embedding_out, embedding(input[:, i].reshape(-1,1,1)).permute(0, 2, 1)), dim = 1)
         # embedding_out=[batch, dim, 128]
@@ -100,8 +100,9 @@ class VAE5(nn.Module):
 
         decoder_input = torch.cat(dim = -1, tensors = (z, h))        # [batch, dim]
         decoder_out = self.decoder(decoder_input)     # [batch, dim]
+        out = torch.sigmoid(decoder_out)
 
-        return decoder_out, mu, log_var
+        return out, mu, log_var
 
 
     def inference(self, miss_date, Missing):
