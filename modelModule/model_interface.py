@@ -6,6 +6,8 @@ from .model1 import VAE
 from .model2 import VAE2
 from .model3 import VAE3
 from .model4 import VAE4
+from .model5 import VAE5
+import pickle
 from loss_function import vae_loss_2
 
 
@@ -31,6 +33,9 @@ class MInterface(pl.LightningModule):
             self.model = VAE3(dim=self.args.dim, nhead=self.args.nhead)
         elif self.args.model_type == 'model4':
             self.model = VAE4(dim=self.args.dim)
+        elif self.args.model_type == 'model5':
+            pro_types = pickle.load(open(self.args.pro_type_file, 'rb'))
+            self.model = VAE5(dim=self.args.dim, pro_types=pro_types)
 
         ## 参数初始化
         for m in self.model.modules():
@@ -92,3 +97,5 @@ class MInterface(pl.LightningModule):
         elif self.args.lr_scheduler == 'None':
             logger.info('configure_optimizers 初始化结束...')
             return optimizer
+
+

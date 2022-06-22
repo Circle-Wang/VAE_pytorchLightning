@@ -14,12 +14,21 @@ class VAE5(nn.Module):
         self.dim = dim
         self.pro_types = pro_types
 
+        self.ClassHeads = nn.ModuleList([])
         self.embeddings = nn.ModuleList([])
         for pro_type in self.pro_types:
             if pro_type[0] == 'discrete':
                 self.embeddings.append(nn.Embedding(num_embeddings=pro_type[1], embedding_dim=128))
+                # self.ClassHeads.append(nn.Sequential(nn.Linear(128, 128),
+                #                                     nn.LeakyReLU(inplace=True),
+                #                                     nn.Linear(128, pro_type[1])),
+                #                                     nn.Softmax(dim=1),
+                #                                     )
             elif pro_type[0] == 'normal':
                 self.embeddings.append(nn.Conv1d(in_channels=1, out_channels=128, kernel_size=1, stride=1))
+                # self.ClassHeads.append(nn.Sequential(nn.Linear(128, 128),
+                #                                     nn.AdaptiveMaxPool1d(output_size=1))
+                #                                     )
 
         self.Nan_feature = nn.Parameter(torch.randn(1, 128)) # Nan特征用于替换缺失值的特征
         
@@ -27,26 +36,22 @@ class VAE5(nn.Module):
         self.encoder = nn.TransformerEncoder(self.encoder_layer, num_layers=6) 
 
         self.FClayer_mu = nn.Sequential(
-            nn.Linear(self.dim, self.dim*2),
-            nn.LeakyReLU(inplace=True),
-            nn.Linear(self.dim*2, self.dim),
+            nn.Linear(128, 128),
             )  # 均值的输出
 
         self.FClayer_std = nn.Sequential(
-            nn.Linear(self.dim, self.dim*2),
-            nn.LeakyReLU(inplace=True),
-            nn.Linear(self.dim*2, self.dim)
+            nn.Linear(128, 128),
             )  # 方差的输出
 
         self.max_pool1 = nn.AdaptiveMaxPool1d(output_size=1) # 全局池化
         self.max_pool2 = nn.AdaptiveMaxPool1d(output_size=1) # 全局池化 
 
-        
         self.decoder = nn.Sequential(
-            nn.Linear(self.dim, self.dim*4),
+            nn.Linear(128*2, 128),
             nn.LeakyReLU(inplace=True),
-            nn.Linear(self.dim*4, self.dim),
-            ) # 把解码器得到的数据变成我们需要的数据
+            nn.Linear(128, 128),
+            ) # 解码器
+
 
     def get_global_min_max(self, global_max, global_min):
         '''
@@ -82,19 +87,19 @@ class VAE5(nn.Module):
         Miss_bool = M_matrix.unsqueeze(-1).expand(embedding_out.shape) # [batch, dim, 128]
         encoder_input = embedding_out * Miss_bool + (1 - Miss_bool) * self.Nan_feature # 将缺失数值替换为NAN
 
-        h = self.encoder(encoder_input)            # 得到隐藏层 [batch, dim, 128]
-        h = self.max_pool1(h).squeeze(-1)          # 全局最大池化 [batch, dim]
+        h = self.encoder(encoder_input)              # 得到隐藏层 [batch, dim, 128]
+        # h = self.max_pool1(h).squeeze(-1)          # 全局最大池化 [batch, dim]
 
-        mu = self.FClayer_mu(h)       # 得到均值   [batch, dim]
-        log_var = self.FClayer_std(h) # 得到方差   [batch, dim]
+        mu = self.FClayer_mu(h)       # 得到均值   [batch, dim, 128]
+        log_var = self.FClayer_std(h) # 得到方差   [batch, dim, 128]
 
-        z = self.reparameterize(mu, log_var) # 得到隐藏变量 [batch, dim]
+        z = self.reparameterize(mu, log_var) # 得到隐藏变量 [batch, dim, 128]
 
-        decoder_input = torch.cat(dim = 1, tensors = (z, h))        # [batch, dim*2]
-        decoder_out = self.decoder(decoder_input)     # [batch, dim]
+        decoder_input = torch.cat(dim = -1, tensors = (z, h))        # [batch, dim, 128*2]
+        decoder_out = self.decoder(decoder_input)     # [batch, dim, 128]
 
+        return decoder_out, mu, log_var
 
-        return out, mu, log_var
 
     def inference(self, miss_date, Missing):
         '''

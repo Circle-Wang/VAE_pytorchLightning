@@ -1,4 +1,5 @@
 import torch
+from torch import nn
 
 def vae_loss(src_data, imputed_data, M, mu, log_var):
     '''
@@ -17,3 +18,4 @@ def vae_loss_2(src_data, imputed_data, M, mu, log_var):
     kl_div = - 0.5 * torch.sum(1 + log_var - mu.pow(2) - log_var.exp())
     train_loss = MSE_loss*10 + kl_div
     return train_loss, MSE_loss*10, kl_div
+
