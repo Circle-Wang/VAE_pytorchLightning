@@ -25,4 +25,3 @@ model4: model3的改进版
     - 后续内容相model3没有改动得到，z=[batch, dim]
     - 将z和h进行cat得到[batch, dim*2], 将cat后的数据经过FC层得到[batch, dim](out)
     - 把out增加一个维度得到[batch, 1, dim]，同样经过一个采用卷积的embedding层，并进行维度置换得到[batch, dim, 128](out)
-    - 后续操作不变
