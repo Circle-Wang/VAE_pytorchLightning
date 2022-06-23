@@ -56,12 +56,16 @@ class VAE5(nn.Module):
             ) # 解码器
 
 
-    def get_global_min_max(self, global_max, global_min):
+    def get_global_min_max(self, dataset):
         '''
-        获取训练集正则化参数
+        获取训练集正则化参数, 数据集属性类型
         '''
-        self.global_max = global_max
-        self.global_min = global_min
+        self.global_max = dataset.Max_Val
+        self.global_min = dataset.Min_Val
+        if dataset.pro_type_file is None:
+            self.pro_types = None
+        else:
+            self.pro_types = dataset.pro_types
 
     def reparameterize(self, mu, log_var):
         '''
@@ -115,7 +119,10 @@ class VAE5(nn.Module):
         ## 将数据正则化
         res_data = np.zeros(miss_date.shape)
         for i in range(len(miss_date)):
-            res_data[i,:] = (miss_date[i,:] - self.global_min) / self.global_max
+            if (self.pro_types is not None) and (self.pro_types[i][0] == 'discrete'):
+                res_data[i,:] = miss_date[i,:]
+            else:
+                res_data[i,:] = (miss_date[i,:] - self.global_min) / self.global_max
 
         ## 将缺失部分采用999填充
         input_data = np.nan_to_num(res_data, nan=9999)

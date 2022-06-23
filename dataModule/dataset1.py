@@ -22,8 +22,8 @@ class FlatDataset(torch.utils.data.Dataset):
         if pro_type_file is None:
             self.global_normal_data, self.Min_Val, self.Max_Val = self.data_norm(self.data)
         else:
-            pro_types = pickle.load(open(pro_type_file, 'rb'))
-            self.portion_normal_data, self.global_normal_data, self.Min_Val, self.Max_Val = self.data_norm(self.data, pro_types)
+            self.pro_types = pickle.load(open(pro_type_file, 'rb'))
+            self.portion_normal_data, self.global_normal_data, self.Min_Val, self.Max_Val = self.data_norm(self.data, self.pro_types)
 
 
     def __len__(self):

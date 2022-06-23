@@ -13,15 +13,15 @@ version: 1
 ############################ optimizer ##################################
 optim: Adam                          # 可选优化器Adam、SGD
 lr: 1e-4                             # 学习率
-lr_scheduler: CosineAnnealingLR      # 可选CosineAnnealingLR、OneCycleLR、None
+lr_scheduler: None      # 可选CosineAnnealingLR、OneCycleLR、None
 
 ############################ load checkpoint path ###################
 checkpoint_path:
 
 ############################ dataset ##################################
 dataset_name: 'Letter'
-train_data: /root/autodl-tmp/VAE_pytorchLightning/Letter_train.csv
-val_data: /root/autodl-tmp/VAE_pytorchLightning/Letter_test.csv
+train_data: /root/autodl-tmp/VAE_pytorchLightning/Letter_标签置换后train.csv
+val_data: /root/autodl-tmp/VAE_pytorchLightning/Letter_标签置换后test.csv
 dim: 16            # 数据特征维度
 nhead: 3           # 多头注意力机制的头数
 missing_ratio: 0.3 # 模拟缺失比率

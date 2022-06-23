@@ -48,7 +48,7 @@ class MInterface(pl.LightningModule):
         normal_data = batch['normal_data']
         imputed_data, mu, log_var = self.model(miss_data, M_matrix) # [batch, dim]
         imputed_data = imputed_data * global_max + global_min # 恢复原来的值
-        
+
         loss, MSE_loss, kl_div = vae_loss_2(src_data, imputed_data, M_matrix, mu, log_var)
         self.log('train_loss', loss, on_epoch=True, on_step=True, prog_bar=True, logger=True)
         self.log('kl_div', kl_div, on_epoch=True, on_step=False, prog_bar=True, logger=True)
