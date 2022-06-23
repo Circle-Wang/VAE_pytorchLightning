@@ -11,10 +11,12 @@ class DInterface(pl.LightningDataModule):
     def setup(self, stage=None):
         self.train_set = FlatDataset(self.args.train_data,
                                     missing_ratio=self.args.missing_ratio,
-                                    data_norm=self.args.data_norm)
+                                    data_norm=self.args.data_norm,
+                                    pro_type_file=self.args.pro_type_file)
         self.valid_set = FlatDataset(self.args.val_data,
                                     missing_ratio=self.args.missing_ratio,
-                                    data_norm=self.args.data_norm)
+                                    data_norm=self.args.data_norm,
+                                    pro_type_file=self.args.pro_type_file)
     
     def train_dataloader(self):
         train_dataloader = DataLoader(self.train_set, 

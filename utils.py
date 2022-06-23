@@ -1,9 +1,11 @@
 import numpy as np
 import torch
 
-def minmax_norm(src_data):
+def minmax_norm(src_data, pro_types=None):
     '''
     对数据进行按列进行最大-最小正则化(减去最小值除以最大值),使得每一个数据都处于[0,1]区间
+    pro_types: List 元素为元组, 每个元组第一个位置表示该属性类别discrete, 或者normal
+    返回值
     '''
     data = src_data.copy()
     num, Dim = data.shape
@@ -14,9 +16,18 @@ def minmax_norm(src_data):
         Min_Val[i] = np.min(src_data[:,i])
         Max_Val[i] = np.max(src_data[:,i])
         data[:,i] = (src_data[:,i] - np.min(src_data[:,i]))/(np.max(src_data[:,i]) + 1e-6) # 减去最小值
-    return data, Min_Val, Max_Val
 
-def mean_norm(src_data):
+    if pro_types is None:
+        return data, Min_Val, Max_Val
+    else:
+        model_data = data.copy()
+        for i in range(Dim):
+            if pro_types[i][0] == 'discrete':
+                model_data[:,i] = src_data[:,i]
+        return model_data, data, Min_Val, Max_Val
+
+
+def mean_norm(src_data, pro_types=None):
     '''
     对数据进行按列进行均值-标准差正则化(减去均值除以方差), 使得每一个数据都处于[0,1]区间
     '''
@@ -29,8 +40,15 @@ def mean_norm(src_data):
         mean_Val[i] = np.mean(src_data[:,i])
         std_Val[i] = np.std(src_data[:,i])
         data[:,i] = src_data[:,i] - np.mean(src_data[:,i]) / (np.std(src_data[:,i]) + 1e-8)  # 减去最小值
-    return data, mean_Val, std_Val
 
+    if pro_types is None:
+        return data, mean_Val, std_Val
+    else:
+        model_data = data.copy()
+        for i in range(Dim):
+            if pro_types[i][0] == 'discrete':
+                model_data[:,i] = src_data[:,i]
+        return model_data, data, mean_Val, std_Val
 
 
 def get_missing(data, p_miss):
