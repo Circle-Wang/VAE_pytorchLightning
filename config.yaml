@@ -9,7 +9,7 @@ max_epochs: 1000
 model_type: model5
 pro_type_file: /root/autodl-tmp/VAE_pytorchLightning/Letter_pro_type.pkl
 batch_size: 256
-version: 1
+version: 2
 ############################ optimizer ##################################
 optim: Adam                          # 可选优化器Adam、SGD
 lr: 1e-4                             # 学习率
