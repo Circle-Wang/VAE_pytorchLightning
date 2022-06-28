@@ -62,10 +62,10 @@ class VAE5(nn.Module):
         '''
         self.global_max = dataset.Max_Val
         self.global_min = dataset.Min_Val
-        if dataset.pro_type_file is None:
-            self.pro_types = None
-        else:
-            self.pro_types = dataset.pro_types
+        # if dataset.pro_type_file is None:
+        #     self.pro_types = None
+        # else:
+        #     self.pro_types = dataset.pro_types
 
     def reparameterize(self, mu, log_var):
         '''
@@ -118,16 +118,17 @@ class VAE5(nn.Module):
         '''
         ## 将数据正则化
         res_data = np.zeros(miss_date.shape)
-        for i in range(len(miss_date)):
+        for i in range(miss_date.shape[-1]):
             if (self.pro_types is not None) and (self.pro_types[i][0] == 'discrete'):
-                res_data[i,:] = miss_date[i,:]
+                res_data[:,i] = miss_date[:,i]
             else:
-                res_data[i,:] = (miss_date[i,:] - self.global_min) / self.global_max
-
-        ## 将缺失部分采用999填充
+                res_data[:,i] = (miss_date[:,i] - self.global_min[i]) / self.global_max[i]
+        print(res_data)
+        ## 将缺失部分采用0填充
         input_data = np.nan_to_num(res_data, nan=9999)
         output, _, _ = self.forward(torch.from_numpy(input_data).float(), torch.from_numpy(Missing).float())
 
+        imputed_data = output * torch.from_numpy(self.global_max).float() + torch.from_numpy(self.global_min).float() # 恢复原来的值
         ## 输出完整数据
-        imputed_data = restore_data(output.detach().numpy(), self.global_max, self.global_min)
-        return imputed_data, output
+        # imputed_data = restore_data(output.detach().numpy(), self.global_max, self.global_min)
+        return imputed_data.detach().numpy(), output
