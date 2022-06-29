@@ -1,2 +1,0 @@
-version3: 多头注意力+不使用pool，解码器：多头注意力+meanpool+线性FC
-version4: 使用meanpool
