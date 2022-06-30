@@ -6,6 +6,7 @@ from pytorch_lightning import Trainer
 import logging
 import hydra #hydra-core
 from omegaconf import DictConfig
+import torch
 
 
 logger = logging.getLogger("train")
@@ -39,7 +40,11 @@ def main(hparams):
 
     if hparams.checkpoint_path:
         logger.info(f'Start training from {hparams.checkpoint_path}')
-        trainer.fit(model, dataloader, ckpt_path=hparams.checkpoint_path)
+        # trainer.fit(model, dataloader, ckpt_path=hparams.checkpoint_path)
+        # 这种方式相当于只载入参数,无其他信息
+        checkpoint = torch.load(hparams.checkpoint_path)
+        model.load_state_dict(checkpoint['state_dict'])
+        trainer.fit(model, dataloader)
     else:
         logger.info(f'Start training...')
         trainer.fit(model, dataloader)
