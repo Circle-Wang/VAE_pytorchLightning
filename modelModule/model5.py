@@ -128,7 +128,7 @@ class VAE5(nn.Module):
 
         z = self.reparameterize(mu, log_var) # 得到隐藏变量 [batch, dim]
 
-        decoder_input = torch.cat(dim = -1, tensors = (z, h))        # [batch, dim]
+        decoder_input = torch.cat(dim = -1, tensors = (z, h))        # [batch, dim*2]
         decoder_out = self.decoder(decoder_input)     # [batch, dim]
         out = torch.sigmoid(decoder_out)
 

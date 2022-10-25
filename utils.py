@@ -7,7 +7,7 @@ def minmax_norm(src_data, pro_types=None):
     pro_types: List 元素为元组, 每个元组第一个位置表示该属性类别discrete, 或者normal
     返回值
     '''
-    data = src_data.copy()
+    data = src_data.copy().astype(np.float32)
     num, Dim = data.shape
     # 记录各列最大值,最小值用于返回得到插值结果
     Min_Val = np.zeros(Dim) 
@@ -15,7 +15,7 @@ def minmax_norm(src_data, pro_types=None):
     for i in range(Dim):
         Min_Val[i] = np.min(src_data[:,i])
         Max_Val[i] = np.max(src_data[:,i])
-        data[:,i] = (src_data[:,i] - np.min(src_data[:,i]))/(np.max(src_data[:,i]) + 1e-6) # 减去最小值
+        data[:,i] = (src_data[:,i] - np.min(src_data[:,i]))/(np.max(src_data[:,i]) - np.min(src_data[:,i]) + 1e-6) # 减去最小值
 
     if pro_types is None:
         return data, Min_Val, Max_Val
@@ -31,7 +31,7 @@ def mean_norm(src_data, pro_types=None):
     '''
     对数据进行按列进行均值-标准差正则化(减去均值除以方差), 使得每一个数据都处于[0,1]区间
     '''
-    data = src_data.copy()
+    data = src_data.copy().astype(np.float32)
     num, Dim = data.shape
     # 记录各列最大值,最小值用于返回得到插值结果
     mean_Val = np.zeros(Dim) 
