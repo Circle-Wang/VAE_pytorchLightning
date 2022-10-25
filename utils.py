@@ -69,17 +69,21 @@ def get_missing(data, p_miss):
     missing_data = data * Missing + 9999 * (1-Missing)
     return missing_data, Missing
 
-def restore_data(data, max_val, min_val):
+def restore_data(data, max_val, min_val, norm_type="minmax_norm"):
     '''
-    根据列向量(属性)的最大值(标准差)和最小值(均值), 复原真正的数据
+    根据列向量(属性)的最大值(标准差)和最小值(均值), 复原真正的数据,
     '''
     if isinstance(data, np.ndarray):
         res_data = np.zeros(data.shape)
     else:
         res_data = torch.zeros_like(data, device=data.device)
-        
-    for i in range(len(data)):
-        res_data[i,:] = data[i,:] * max_val + min_val
+
+    if norm_type == "minmax_norm":
+        for i in range(len(data)):
+            res_data[i,:] = data[i,:] * (max_val-min_val) + min_val
+    elif norm_type == "mean_norm":
+        for i in range(len(data)):
+            res_data[i,:] = data[i,:] * max_val + min_val
     return res_data
 
 def result_show(src_data, imputed_data, M_matrix):
