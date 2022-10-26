@@ -1,2 +1,0 @@
-Breast_pro_type.pkl: list ,每一列的属性类型('normal', None),('discrete', 2)
-Breast数值置换表.pkl: dict, 键为那些有数值映射的属性的属性名，值为一个字典。

@@ -3,16 +3,18 @@ import torch
 from torch import nn
 import torch.nn.functional as F
 import numpy as np
-from utils import restore_data
+from utils import restore_data, minmax_norm
 
 class VAE5(nn.Module):
-    def __init__(self, pro_types, dim):
+    def __init__(self, pro_types, replace_dict, dim):
         '''
         pro_type: list, 每个元素为(x, y), x表示每个维度数据类型: normal, discrete. y表示discrete字典长度
+        replace_dict_file: 对离散数据集合进行替换的字典文件, key=列名,value={替换方法}
         '''
         super(VAE5, self).__init__()
         self.dim = dim
         self.pro_types = pro_types
+        self.replace_dict = replace_dict  # 用于推理和复原文件
 
         self.ClassHeads = nn.ModuleList([])
         self.embeddings = nn.ModuleList([])
@@ -81,16 +83,16 @@ class VAE5(nn.Module):
 
 
 
-    def get_global_min_max(self, dataset):
-        '''
-        获取训练集正则化参数, 数据集属性类型
-        '''
-        self.global_max = dataset.Max_Val
-        self.global_min = dataset.Min_Val
-        # if dataset.pro_type_file is None:
-        #     self.pro_types = None
-        # else:
-        #     self.pro_types = dataset.pro_types
+    # def get_global_min_max(self, dataset):
+    #     '''
+    #     获取训练集正则化参数, 数据集属性类型
+    #     '''
+    #     self.global_max = dataset.Max_Val
+    #     self.global_min = dataset.Min_Val
+    #     # if dataset.pro_type_file is None:
+    #     #     self.pro_types = None
+    #     # else:
+    #     #     self.pro_types = dataset.pro_types
 
     def reparameterize(self, mu, log_var):
         '''
@@ -169,26 +171,28 @@ class VAE5(nn.Module):
     #     return out, mu, log_var
 
 
-    def inference(self, miss_date, Missing):
+    def inference(self, miss_date):
         '''
         使用模型对缺失数据进行插补
-        miss_data: 是包含nan的np数组(没有正则化的)
-        Missing: 是缺失矩阵
+        miss_data: 是包含nan的DF(文件)
         return: 复原后的完整数据, 模型直接输出结果
         '''
-        ## 将数据正则化
-        res_data = np.zeros(miss_date.shape)
-        for i in range(miss_date.shape[-1]):
-            if (self.pro_types is not None) and (self.pro_types[i][0] == 'discrete'):
-                res_data[:,i] = miss_date[:,i]
-            else:
-                res_data[:,i] = (miss_date[:,i] - self.global_min[i]) / self.global_max[i]
+        ## 将数据进行处理，替换离散数据集合
+        
+        for key, mapping in self.replace_dict.items():
+            miss_date[key] = miss_date[key].map(mapping)
 
-        ## 将缺失部分采用0填充
-        input_data = np.nan_to_num(res_data, nan=9999)
+        Missing = 1 - miss_date.isna().to_numpy().astype(int) # 获取缺失矩阵np
+        
+        ## 将数据正则化
+        partial_norm_data, norm_data, Min_Val, Max_Val = minmax_norm(miss_date, self.pro_types)
+
+        ## 将缺失部分采用999填充
+        input_data = np.nan_to_num(partial_norm_data, nan=999)
+        ## 模型填充
         output, _, _ = self.forward(torch.from_numpy(input_data).float(), torch.from_numpy(Missing).float())
 
-        imputed_data = output * torch.from_numpy(self.global_max).float() + torch.from_numpy(self.global_min).float() # 恢复原来的值
-        ## 输出完整数据
-        # imputed_data = restore_data(output.detach().numpy(), self.global_max, self.global_min)
-        return imputed_data.detach().numpy(), output
+        imputed_data = output * (torch.from_numpy(Max_Val).float() - torch.from_numpy(Min_Val).float()) + torch.from_numpy(Min_Val).float() # 恢复原来的值
+        imputed_data = imputed_data.detach().numpy() * (1-Missing) + Missing * np.nan_to_num(miss_date, nan=999) # 先将miss_data中的nan换为99 防止计算无效
+
+        return imputed_data, output

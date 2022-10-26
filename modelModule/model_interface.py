@@ -2,13 +2,9 @@ import pytorch_lightning as pl
 import torch
 from torch import nn
 
-from .model1 import VAE
-from .model2 import VAE2
-from .model3 import VAE3
-from .model4 import VAE4
 from .model5 import VAE5
 import pickle
-from loss_function import vae_loss_2
+from loss_function import vae_loss
 
 
 import warnings
@@ -25,9 +21,7 @@ class MInterface(pl.LightningModule):
         self.args = args
         self.batch_size = self.args.batch_size
         self.learning_rate = self.args.lr
-        if self.args.model_type == 'model1':
-            self.model = VAE(dim=self.args.dim, nhead=self.args.nhead)
-        elif self.args.model_type == 'model5':
+        if self.args.model_type == 'model5':
             pro_types = pickle.load(open(self.args.pro_type_file, 'rb'))
             self.model = VAE5(dim=self.args.dim, pro_types=pro_types)
 
@@ -43,7 +37,7 @@ class MInterface(pl.LightningModule):
         imputed_data, mu, log_var = self.model(miss_data, M_matrix) # [batch, dim]
         # imputed_data = imputed_data * (global_max-global_min) + global_min # 恢复原来的值
 
-        loss, MSE_loss, kl_div = vae_loss_2(normal_data, imputed_data, M_matrix, mu, log_var)
+        loss, MSE_loss, kl_div = vae_loss(normal_data, imputed_data, M_matrix, mu, log_var)
         self.log('train_loss', loss, on_epoch=True, on_step=True, prog_bar=True, logger=True)
         self.log('kl_div', kl_div, on_epoch=True, on_step=False, prog_bar=True, logger=True)
         self.log('MSE_loss', MSE_loss, on_epoch=True, on_step=False, prog_bar=True, logger=True)
@@ -56,7 +50,7 @@ class MInterface(pl.LightningModule):
         imputed_data, mu, log_var = self.model(miss_data, M_matrix)
 
         # imputed_data = imputed_data * global_max + global_min # 恢复原来的值
-        loss, MSE_loss, _ = vae_loss_2(normal_data, imputed_data, M_matrix, mu, log_var)
+        loss, MSE_loss, _ = vae_loss(normal_data, imputed_data, M_matrix, mu, log_var)
         self.log('val_loss', loss, on_epoch=True, prog_bar=True, logger=True)
         self.log('val_MSE_loss', MSE_loss, on_epoch=True, prog_bar=True, logger=True)
 
