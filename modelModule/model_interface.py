@@ -27,12 +27,6 @@ class MInterface(pl.LightningModule):
         self.learning_rate = self.args.lr
         if self.args.model_type == 'model1':
             self.model = VAE(dim=self.args.dim, nhead=self.args.nhead)
-        elif self.args.model_type == 'model2':
-            self.model = VAE2(dim=self.args.dim, nhead=self.args.nhead)
-        elif self.args.model_type == 'model3':
-            self.model = VAE3(dim=self.args.dim, nhead=self.args.nhead)
-        elif self.args.model_type == 'model4':
-            self.model = VAE4(dim=self.args.dim)
         elif self.args.model_type == 'model5':
             pro_types = pickle.load(open(self.args.pro_type_file, 'rb'))
             self.model = VAE5(dim=self.args.dim, pro_types=pro_types)

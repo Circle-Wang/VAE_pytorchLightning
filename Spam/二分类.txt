@@ -1,0 +1,2 @@
+Spam_pro_type.pkl: list, 储存了每一列的属性类型('normal', None), normal表示是连续型变量
+Spam数值置换表.pkl: 空字典，因为所有类型都是连续型变量，因此不存在数值映射的情况

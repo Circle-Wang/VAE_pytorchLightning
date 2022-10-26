@@ -6,7 +6,7 @@ import numpy as np
 from utils import restore_data
 
 class VAE5(nn.Module):
-    def __init__(self, pro_types, dim=57):
+    def __init__(self, pro_types, dim):
         '''
         pro_type: list, 每个元素为(x, y), x表示每个维度数据类型: normal, discrete. y表示discrete字典长度
         '''
