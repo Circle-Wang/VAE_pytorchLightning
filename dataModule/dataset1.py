@@ -1,29 +1,38 @@
 import pickle
 import torch
 import numpy as np
-from utils import get_missing, minmax_norm, mean_norm
+import pandas as pd
+
+from utils import minmax_norm, mean_norm
 
 
 class FlatDataset(torch.utils.data.Dataset):
     '''
-    根据完整数据,得到缺失矩阵, 并对矩阵进行[0,1)区间的标准化,返回不含随机数的缺失数组
+    根据缺失数据集(.CSV文件)获得缺失矩阵, 对数据矩阵进行归一化/标准化, 返回
     '''
-    def __init__(self, csv_file, missing_ratio=0.3, data_norm='minmax_norm', pro_type_file=None):
+    def __init__(self, csv_file, pro_type_file, data_norm='minmax_norm'):
+        '''
+        csv_file: .csv文件路径
+        data_norm: 对数据矩阵的归一化/标准化方式
+        pro_type_file: pro_type.pkl文件路径
+
+        '''
         self.csv_file = csv_file
-        self.missing_ratio = missing_ratio
-        self.pro_type_file = pro_type_file # 数据属性文件
+        self.pro_type_file = pro_type_file
+
         if data_norm == 'minmax_norm':
             self.data_norm = minmax_norm
         elif data_norm == 'mean_norm':
             self.data_norm = mean_norm
 
-        self.data = np.loadtxt(self.csv_file, delimiter=",", skiprows=1)
 
-        if pro_type_file is None:
-            self.global_normal_data, self.Min_Val, self.Max_Val = self.data_norm(self.data)
-        else:
-            self.pro_types = pickle.load(open(pro_type_file, 'rb'))
-            self.portion_normal_data, self.global_normal_data, self.Min_Val, self.Max_Val = self.data_norm(self.data, self.pro_types)
+        self.data = pd.read_csv(csv_file)
+        self.miss_matrix = 1 - self.data.isna().to_numpy().astype(int)  # 得到数据集的缺失矩阵np
+
+        self.pro_types = pickle.load(open(pro_type_file, 'rb'))
+        self.portion_normal_data, self.global_normal_data, self.Min_Val, self.Max_Val = self.data_norm(self.data, self.pro_types)
+
+        self.data = self.data.to_numpy()  # 将原始数据集转化np
 
 
     def __len__(self):
@@ -34,36 +43,33 @@ class FlatDataset(torch.utils.data.Dataset):
         在DataLoader中参数collate_fn的传入值,主要作用对每个batch中的每个样本进行进行整合(产生Missing矩阵,产生Z加入矩阵)和规整输出
         return:字典,注意此处返回的结果就是dataloader每次返回的batch的结果
         '''
-        src_data_batch = np.stack([s['src_data'] for s in samples], axis=0)       # batch中样本的原数据集
-        normal_data_batch = np.stack([s['global_normal_data'] for s in samples], axis=0)
-        if self.pro_type_file is not None:
-            portion_normal_data = np.stack([s['portion_normal_data'] for s in samples], axis=0)
-            miss_data_batch, M_batch = get_missing(portion_normal_data, self.missing_ratio)   # 得到缺失矩阵
-        else:
-            miss_data_batch, M_batch = get_missing(normal_data_batch, self.missing_ratio)   # 得到缺失矩阵
-        # miss_data:缺失部分采用9999来补全
+        src_data_batch = np.stack([s['src_data'] for s in samples], axis=0)              # batch中样本的原数据集
+        global_normal_batch = np.stack([s['global_normal_data'] for s in samples], axis=0) 
+        portion_normal_batch = np.stack([s['portion_normal_data'] for s in samples], axis=0)
+        miss_matrix_batch = np.stack([s['miss_matrix_data'] for s in samples], axis=0)
+
+        # 为了之后训练不出现bug, 需要将所有nan的部分变为缺失部分采用9999来补全
+        # 此处并不影响模型的训练
+        src_data_batch[np.isnan(src_data_batch)] = 9999
+        global_normal_batch[np.isnan(global_normal_batch)] = 9999
+        portion_normal_batch[np.isnan(portion_normal_batch)] = 9999
 
         return {
             "src_data": torch.from_numpy(src_data_batch).float(),
-            'normal_data': torch.from_numpy(normal_data_batch).float(),
-            "miss_data": torch.from_numpy(miss_data_batch).float(), 
-            'miss_matrix': torch.from_numpy(M_batch).float(),
+            'global_normal': torch.from_numpy(global_normal_batch).float(),
+            'portion_normal': torch.from_numpy(portion_normal_batch).float(),
+            'miss_matrix': torch.from_numpy(miss_matrix_batch).float(),
             'global_max': torch.from_numpy(self.Max_Val).float(),
             'global_min': torch.from_numpy(self.Min_Val).float(),
         }
     
     def __getitem__(self, index):
-        if self.pro_type_file is None:
-            ret = {
-                'src_data': self.data[index],
-                'global_normal_data': self.global_normal_data[index],
-            }
-        else:
-            ret = {
-                'src_data': self.data[index],
-                'global_normal_data': self.global_normal_data[index],
-                'portion_normal_data': self.portion_normal_data[index],
-            }
+        ret = {
+            'src_data': self.data[index],
+            'global_normal_data': self.global_normal_data[index],
+            'portion_normal_data': self.portion_normal_data[index],
+            'miss_matrix': self.miss_matrix[index],
+        }
             
         return ret
 
