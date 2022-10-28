@@ -171,7 +171,7 @@ class VAE5(nn.Module):
     #     return out, mu, log_var
 
 
-    def inference(self, miss_date):
+    def inference(self, miss_date, restore=False):
         '''
         使用模型对缺失数据进行插补
         miss_data: 是包含nan的DF(文件)
@@ -192,7 +192,10 @@ class VAE5(nn.Module):
         ## 模型填充
         output, _, _ = self.forward(torch.from_numpy(input_data).float(), torch.from_numpy(Missing).float())
 
-        imputed_data = output * (torch.from_numpy(Max_Val).float() - torch.from_numpy(Min_Val).float()) + torch.from_numpy(Min_Val).float() # 恢复原来的值
-        imputed_data = imputed_data.detach().numpy() * (1-Missing) + Missing * np.nan_to_num(miss_date, nan=999) # 先将miss_data中的nan换为99 防止计算无效
+        if restore == True:
+            imputed_data = output * (torch.from_numpy(Max_Val).float() - torch.from_numpy(Min_Val).float()) + torch.from_numpy(Min_Val).float() # 恢复原来的值
+            imputed_data = imputed_data.detach().numpy() * (1-Missing) + Missing * np.nan_to_num(miss_date, nan=999) # 先将miss_data中的nan换为99 防止计算无效
+        else:
+            imputed_data = output.detach().numpy() * (1-Missing) + Missing * np.nan_to_num(miss_date, nan=999) # 先将miss_data中的nan换为99 防止计算无效
 
         return imputed_data, output
