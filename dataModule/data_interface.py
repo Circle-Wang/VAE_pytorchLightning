@@ -9,14 +9,14 @@ class DInterface(pl.LightningDataModule):
         self.batch_size = args.batch_size
     
     def setup(self, stage=None):
-        self.train_set = FlatDataset(self.args.train_data,
-                                    missing_ratio=self.args.missing_ratio,
-                                    data_norm=self.args.data_norm,
-                                    pro_type_file=self.args.pro_type_file)
-        self.valid_set = FlatDataset(self.args.val_data,
-                                    missing_ratio=self.args.missing_ratio,
-                                    data_norm=self.args.data_norm,
-                                    pro_type_file=self.args.pro_type_file)
+        self.train_set = FlatDataset(csv_file=self.args.train_data,
+                                     pro_type_file=self.args.pro_type_file, 
+                                     replace_dict_file=self.args.replace_dict_file
+                                    )
+        self.valid_set = FlatDataset(csv_file=self.args.train_data,
+                                     pro_type_file=self.args.pro_type_file, 
+                                     replace_dict_file=self.args.replace_dict_file
+                                    )
     
     def train_dataloader(self):
         train_dataloader = DataLoader(self.train_set, 

@@ -18,12 +18,13 @@ def main(hparams):
     model = MInterface(hparams)
     dataloader = DInterface(hparams)
     
-    tfname = f'{hparams.dataset_name} {hparams.model_type} norm_way {hparams.data_norm} '.replace(
+    tfname = f'{hparams.dataset_name} {hparams.model_type} {hparams.data_norm} '.replace(
         ' ', '_').replace('.', '_') # 储存模型相关参数以及tensorboard的路径
+    
     # 设置回调函数
     lr_monitor = LearningRateMonitor() # 记录学习率回调函数
     progressBar_callback = TQDMProgressBar(refresh_rate=20)   # 进度条回调函数
-    checkpoint_callback = ModelCheckpoint(save_top_k=2, monitor='val_loss', mode='min', save_last=True) # 监控保存val_loss用于保存模型参数
+    checkpoint_callback = ModelCheckpoint(save_top_k=2, monitor='val_MSE_loss', mode='min', save_last=True) # 监控保存val_loss用于保存模型参数
     
     # 设置tensorboard
     tb_logger = pl_loggers.TensorBoardLogger(hparams.save_dir,

@@ -6,7 +6,6 @@ from .model5 import VAE5
 import pickle
 from loss_function import vae_loss
 
-
 import warnings
 import logging
 # 忽略警告
@@ -23,7 +22,8 @@ class MInterface(pl.LightningModule):
         self.learning_rate = self.args.lr
         if self.args.model_type == 'model5':
             pro_types = pickle.load(open(self.args.pro_type_file, 'rb'))
-            self.model = VAE5(dim=self.args.dim, pro_types=pro_types)
+            replace_dict = pickle.load(open(self.args.replace_dict_file, 'rb'))
+            self.model = VAE5(dim=self.args.dim, pro_types=pro_types, replace_dict=replace_dict)
 
         ## 参数初始化
         for m in self.model.modules():
@@ -31,28 +31,30 @@ class MInterface(pl.LightningModule):
                 nn.init.xavier_uniform_(m.weight)
 
     def training_step(self, batch, batch_idx):
-        src_data, miss_data, M_matrix = batch['src_data'], batch['miss_data'], batch['miss_matrix']
+        src_data, global_normal, portion_normal = batch['src_data'], batch['global_normal'], batch['portion_normal']
+        M_matrix = batch['miss_matrix']
         global_max, global_min = batch['global_max'], batch['global_min']
-        normal_data = batch['normal_data']
-        imputed_data, mu, log_var = self.model(miss_data, M_matrix) # [batch, dim]
+
+        imputed_data, mu, log_var = self.model(portion_normal, M_matrix) # [batch, dim]
         # imputed_data = imputed_data * (global_max-global_min) + global_min # 恢复原来的值
 
-        loss, MSE_loss, kl_div = vae_loss(normal_data, imputed_data, M_matrix, mu, log_var)
+        loss, MSE_loss, kl_div = vae_loss(global_normal, imputed_data, M_matrix, mu, log_var)
+
         self.log('train_loss', loss, on_epoch=True, on_step=True, prog_bar=True, logger=True)
         self.log('kl_div', kl_div, on_epoch=True, on_step=False, prog_bar=True, logger=True)
         self.log('MSE_loss', MSE_loss, on_epoch=True, on_step=False, prog_bar=True, logger=True)
         return loss
 
     def validation_step(self, batch, batch_idx):
-        src_data, miss_data, M_matrix = batch['src_data'], batch['miss_data'], batch['miss_matrix']
+        src_data, global_normal, portion_normal = batch['src_data'], batch['global_normal'], batch['portion_normal']
+        M_matrix = batch['miss_matrix']
         global_max, global_min = batch['global_max'], batch['global_min']
-        normal_data = batch['normal_data']
-        imputed_data, mu, log_var = self.model(miss_data, M_matrix)
 
+        imputed_data, mu, log_var = self.model(portion_normal, M_matrix) # [batch, dim]
+        
         # imputed_data = imputed_data * global_max + global_min # 恢复原来的值
-        loss, MSE_loss, _ = vae_loss(normal_data, imputed_data, M_matrix, mu, log_var)
-        self.log('val_loss', loss, on_epoch=True, prog_bar=True, logger=True)
-        self.log('val_MSE_loss', MSE_loss, on_epoch=True, prog_bar=True, logger=True)
+        miss_data_MSE = torch.sum(((1-M_matrix) * global_normal - (1-M_matrix) * imputed_data)**2)
+        self.log('val_MSE_loss', miss_data_MSE, on_epoch=True, prog_bar=True, logger=True)
 
 
     ## 优化器配置

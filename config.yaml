@@ -1,6 +1,6 @@
 ############################   trainer ####################################
 gpus: '0'
-save_dir: /root/autodl-tmp/VAE_pytorchLightning/模型参数保存
+save_dir: C:\王源权\西南财经大学\硕士毕业论文\模型代码\VAE_pytorchLightning\模型参数保存
 num_workers: 4
 precision: 32
 max_epochs: 1000
@@ -8,22 +8,21 @@ max_epochs: 1000
 ############################   model ####################################
 model_type: model5
 batch_size: 256
-version: 2
+version: 1
 ############################ optimizer ##################################
 optim: Adam                          # 可选优化器Adam、SGD
 lr: 1e-5                             # 学习率
 lr_scheduler: CosineAnnealingLR      # 可选CosineAnnealingLR、OneCycleLR、None
 
 ############################ load checkpoint path ###################
-checkpoint_path: /root/autodl-tmp/VAE_pytorchLightning/模型参数保存/Spam_model5_norm_way_minmax_norm_/version_1/checkpoints/epoch=98-step=1485.ckpt
+checkpoint_path: 
 
 ############################ dataset ##################################
 dataset_name: 'Spam'
-train_data: /root/autodl-tmp/VAE_pytorchLightning/Spam_model_train.csv
-val_data: /root/autodl-tmp/VAE_pytorchLightning/Spam_model_test.csv
-pro_type_file: /root/autodl-tmp/VAE_pytorchLightning/Spam_pro_type.pkl
+train_data: C:\王源权\西南财经大学\硕士毕业论文\模型代码\VAE_pytorchLightning\Spam\Spam模拟缺失_0_3.csv
+pro_type_file: C:\王源权\西南财经大学\硕士毕业论文\模型代码\VAE_pytorchLightning\Spam\Spam_pro_type.pkl
+replace_dict_file: C:\王源权\西南财经大学\硕士毕业论文\模型代码\VAE_pytorchLightning\Spam\Spam数值置换表.pkl
 dim: 57            # 数据特征维度
 # nhead: 3           # 多头注意力机制的头数
-missing_ratio: 0.3 # 模拟缺失比率
 data_norm: minmax_norm # 数据标准化方式
 
