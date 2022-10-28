@@ -46,9 +46,9 @@ class MInterface(pl.LightningModule):
         return loss
 
     def validation_step(self, batch, batch_idx):
-        src_data, global_normal, portion_normal = batch['src_data'], batch['global_normal'], batch['portion_normal']
+        global_normal, portion_normal = batch['global_normal'], batch['portion_normal']
         M_matrix = batch['miss_matrix']
-        global_max, global_min = batch['global_max'], batch['global_min']
+        # global_max, global_min = batch['global_max'], batch['global_min']
 
         imputed_data, mu, log_var = self.model(portion_normal, M_matrix) # [batch, dim]
         
