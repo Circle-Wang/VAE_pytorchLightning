@@ -192,10 +192,10 @@ class VAE5(nn.Module):
 
         with torch.no_grad():
             output = torch.tensor([])
-            for batch_i in range(input_data.shape[0] // 5000):
+            for batch_i in range(input_data.shape[0] // 5000+1):
                 data_batch = input_data[batch_i*5000:(batch_i+1)*5000,:]
                 missing_batch = Missing[batch_i*5000:(batch_i+1)*5000,:]
-                out_batch, _, _ = self.forward(torch.from_numpy(data_batch).float(), torch.from_numpy(missing_batch).float())
+                out_batch, _, _ = self.forward(torch.from_numpy(data_batch).float(), torch.from_numpy(missing_batch).float())  
                 output = torch.cat((output, out_batch), 0)
              
         ## 模型推理
