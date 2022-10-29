@@ -189,9 +189,18 @@ class VAE5(nn.Module):
 
         ## 将缺失部分采用999填充
         input_data = np.nan_to_num(partial_norm_data, nan=999)
-        ## 模型填充
-        output, _, _ = self.forward(torch.from_numpy(input_data).float(), torch.from_numpy(Missing).float())
 
+        with torch.no_grad():
+            output = torch.tensor([])
+            for batch_i in range(input_data.shape[0] // 5000):
+                data_batch = input_data[batch_i*5000:(batch_i+1)*5000,:]
+                missing_batch = Missing[batch_i*5000:(batch_i+1)*5000,:]
+                out_batch, _, _ = self.forward(torch.from_numpy(data_batch).float(), torch.from_numpy(missing_batch).float())
+                output = torch.cat((output, out_batch), 0)
+             
+        ## 模型推理
+        # with torch.no_grad():
+            # output, _, _ = self.forward(torch.from_numpy(input_data).float(), torch.from_numpy(Missing).float())
         if restore == True:
             imputed_data = output * (torch.from_numpy(Max_Val).float() - torch.from_numpy(Min_Val).float()) + torch.from_numpy(Min_Val).float() # 恢复原来的值
             imputed_data = imputed_data.detach().numpy() * (1-Missing) + Missing * np.nan_to_num(miss_date, nan=999) # 先将miss_data中的nan换为99 防止计算无效
