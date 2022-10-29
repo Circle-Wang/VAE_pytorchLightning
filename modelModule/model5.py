@@ -196,6 +196,6 @@ class VAE5(nn.Module):
             imputed_data = output * (torch.from_numpy(Max_Val).float() - torch.from_numpy(Min_Val).float()) + torch.from_numpy(Min_Val).float() # 恢复原来的值
             imputed_data = imputed_data.detach().numpy() * (1-Missing) + Missing * np.nan_to_num(miss_date, nan=999) # 先将miss_data中的nan换为99 防止计算无效
         else:
-            imputed_data = output.detach().numpy() * (1-Missing) + Missing * np.nan_to_num(miss_date, nan=999) # 先将miss_data中的nan换为99 防止计算无效
+            imputed_data = output.detach().numpy() * (1-Missing) + Missing * np.nan_to_num(norm_data, nan=999) # 先将miss_data中的nan换为99 防止计算无效
 
         return imputed_data, output

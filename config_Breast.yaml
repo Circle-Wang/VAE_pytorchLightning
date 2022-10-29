@@ -15,15 +15,15 @@ lr: 1e-5                             # 学习率
 lr_scheduler: CosineAnnealingLR      # 可选CosineAnnealingLR、OneCycleLR、None
 
 ############################ load checkpoint path ###################
-checkpoint_path: 
+checkpoint_path:
 
 ############################ dataset ##################################
-dataset_name: 'Spam'
-train_data: /root/autodl-tmp/VAE_pytorchLightning/Spam/Spam模拟缺失_0_3.csv
-valid_data: /root/autodl-tmp/VAE_pytorchLightning/Spam/Spam_without_label.csv
-pro_type_file: /root/autodl-tmp/VAE_pytorchLightning/Spam/Spam_pro_type.pkl
-replace_dict_file: /root/autodl-tmp/VAE_pytorchLightning/Spam/Spam数值置换表.pkl
-dim: 57            # 数据特征维度
+dataset_name: 'Breast'
+train_data: /root/autodl-tmp/VAE_pytorchLightning/Breast/Breast模拟缺失_0_3.csv
+valid_data: /root/autodl-tmp/VAE_pytorchLightning/Breast/Breast_without_label.csv
+pro_type_file: /root/autodl-tmp/VAE_pytorchLightning/Breast/Breast_pro_type.pkl
+replace_dict_file: /root/autodl-tmp/VAE_pytorchLightning/Breast/Breast数值置换表.pkl
+dim: 9            # 数据特征维度
 # nhead: 3           # 多头注意力机制的头数
 data_norm: minmax_norm # 数据标准化方式
 
