@@ -51,7 +51,7 @@ def main(hparams):
         trainer.fit(model, dataloader)
     
     
-@hydra.main(config_path='', config_name="config_Letter") # 读取当前当前工作环境中的config
+@hydra.main(config_path='', config_name="config_Credit") # 读取当前当前工作环境中的config
 def my_app(args: DictConfig):
     main(args)
 
