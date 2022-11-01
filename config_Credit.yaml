@@ -8,7 +8,7 @@ max_epochs: 1000
 ############################   model ####################################
 model_type: model5
 batch_size: 256
-version: 1
+version: 2
 ############################ optimizer ##################################
 optim: Adam                          # 可选优化器Adam、SGD
 lr: 1e-5                             # 学习率
@@ -19,7 +19,7 @@ checkpoint_path:
 
 ############################ dataset ##################################
 dataset_name: 'Credit'
-train_data: /root/autodl-tmp/VAE_pytorchLightning/Credit_Card/Credit模拟缺失_0_3.csv
+train_data: /root/autodl-tmp/VAE_pytorchLightning/Credit_Card/Credit_Card_without_label.csv
 valid_data: /root/autodl-tmp/VAE_pytorchLightning/Credit_Card/Credit_Card_without_label.csv
 pro_type_file: /root/autodl-tmp/VAE_pytorchLightning/Credit_Card/Credit_Card_pro_type.pkl
 replace_dict_file: /root/autodl-tmp/VAE_pytorchLightning/Credit_Card/Credit_Card数值置换表.pkl

@@ -8,18 +8,18 @@ max_epochs: 1000
 ############################   model ####################################
 model_type: model5
 batch_size: 256
-version: 1
+version: 2
 ############################ optimizer ##################################
 optim: Adam                          # 可选优化器Adam、SGD
 lr: 1e-5                             # 学习率
 lr_scheduler: CosineAnnealingLR      # 可选CosineAnnealingLR、OneCycleLR、None
 
 ############################ load checkpoint path ###################
-checkpoint_path: /root/autodl-tmp/VAE_pytorchLightning/模型参数保存/Letter_model5_minmax_norm_/version_1/checkpoints/epoch=661.ckpt
+checkpoint_path: 
 
 ############################ dataset ##################################
 dataset_name: 'Letter'
-train_data: /root/autodl-tmp/VAE_pytorchLightning/Letter/Letter模拟缺失_0_3.csv
+train_data: /root/autodl-tmp/VAE_pytorchLightning/Letter/Letter_without_label.csv
 valid_data: /root/autodl-tmp/VAE_pytorchLightning/Letter/Letter_without_label.csv
 pro_type_file: /root/autodl-tmp/VAE_pytorchLightning/Letter/Letter_pro_type.pkl
 replace_dict_file: /root/autodl-tmp/VAE_pytorchLightning/Letter/Letter数值置换表.pkl
