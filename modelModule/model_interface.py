@@ -31,9 +31,11 @@ class MInterface(pl.LightningModule):
                 nn.init.xavier_uniform_(m.weight)
 
     def training_step(self, batch, batch_idx):
-        src_data, global_normal, portion_normal = batch['src_data'], batch['global_normal'], batch['portion_normal']
+        global_normal, portion_normal = batch['global_normal'], batch['portion_normal']
         M_matrix = batch['miss_matrix']
-        global_max, global_min = batch['global_max'], batch['global_min']
+        # src_data, global_normal, portion_normal = batch['src_data'], batch['global_normal'], batch['portion_normal']
+        # M_matrix = batch['miss_matrix']
+        # global_max, global_min = batch['global_max'], batch['global_min']
 
         imputed_data, mu, log_var = self.model(portion_normal, M_matrix) # [batch, dim]
         # imputed_data = imputed_data * (global_max-global_min) + global_min # 恢复原来的值

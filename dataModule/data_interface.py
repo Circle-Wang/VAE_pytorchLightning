@@ -9,8 +9,13 @@ class DInterface(pl.LightningDataModule):
         self.batch_size = args.batch_size
     
     def setup(self, stage=None):
-        self.train_set = FlatDataset(csv_file=self.args.train_data,
-                                     pro_type_file=self.args.pro_type_file, 
+        # self.train_set = FlatDataset(csv_file=self.args.train_data,
+        #                              pro_type_file=self.args.pro_type_file, 
+        #                              replace_dict_file=self.args.replace_dict_file
+        #                             )
+        self.train_set = ValidDataset(miss_file=self.args.train_data,
+                                     complete_file=self.args.valid_data,
+                                     pro_type_file=self.args.pro_type_file,
                                      replace_dict_file=self.args.replace_dict_file
                                     )
         self.valid_set = ValidDataset(miss_file=self.args.train_data,
