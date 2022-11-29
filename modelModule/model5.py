@@ -112,7 +112,8 @@ class VAE5(nn.Module):
         input = miss_data * M_matrix
 
         # 对数据进行embedding
-        embedding_out = torch.tensor([])
+        embedding_out = torch.tensor([], device=input.device)
+        
         for i, embedding in enumerate(self.embeddings):
             if isinstance(embedding, nn.Embedding):
                 embedding_out = torch.cat((embedding_out, embedding(input[:, i].long().reshape(-1,1))), dim = 1)

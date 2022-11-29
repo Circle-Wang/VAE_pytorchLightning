@@ -32,7 +32,8 @@ def main(hparams):
                                              name=tfname) # 会在file_path路径下创建一个name的文件夹，并且在该文件下创建一个version文件夹来储存
     # 训练设置
     trainer = Trainer(gradient_clip_val=0.5, \
-                    gpus=eval(hparams.gpus), \
+                    # devices=hparams.gpus, accelerator="gpu", \
+                    gpus=hparams.gpus, \
                     precision=hparams.precision , \
                     max_epochs=hparams.max_epochs, \
                     # accelerator='dp', \
