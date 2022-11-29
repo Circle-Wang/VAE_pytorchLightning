@@ -32,7 +32,6 @@ def main(hparams):
                                              name=tfname) # 会在file_path路径下创建一个name的文件夹，并且在该文件下创建一个version文件夹来储存
     # 训练设置
     trainer = Trainer(gradient_clip_val=0.5, \
-                    # devices=hparams.gpus, accelerator="gpu", \
                     gpus=hparams.gpus, \
                     precision=hparams.precision , \
                     max_epochs=hparams.max_epochs, \
@@ -52,7 +51,7 @@ def main(hparams):
         trainer.fit(model, dataloader)
     
     
-@hydra.main(config_path='', config_name="config_Breast") # 读取当前当前工作环境中的config
+@hydra.main(config_path='', config_name="config_Credit") # 读取当前当前工作环境中的config
 def my_app(args: DictConfig):
     main(args)
 
