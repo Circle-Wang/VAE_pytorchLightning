@@ -3,7 +3,7 @@ gpus: [1]  # [0,2]
 save_dir: /userhome/wangyuanquan/WYQ/VAE_pytorchLightning/模型参数保存
 num_workers: 4
 precision: 32
-max_epochs: 1000
+max_epochs: 100000
 
 ############################   model ####################################
 model_type: model5
