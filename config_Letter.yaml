@@ -1,6 +1,6 @@
 ############################   trainer ####################################
 gpus: [1]  # [0,2]
-save_dir: /userhome/wangyuanquan/WYQ/VAE_pytorchLightning/模型参数保存
+save_dir: /userhome/wangyuanquan/WYQ/VAE_pytorchLightning带标签版/模型参数保存
 num_workers: 4
 precision: 32
 max_epochs: 300000
@@ -20,11 +20,11 @@ checkpoint_path:
 ############################ dataset ##################################
 dataset_name: 'Letter'
 
-train_data: /userhome/wangyuanquan/WYQ/VAE_pytorchLightning/Letter/Letter模拟缺失_0_3_label.csv
-valid_data: /userhome/wangyuanquan/WYQ/VAE_pytorchLightning/Letter/Letter完整数据集.csv
-pro_type_file: /userhome/wangyuanquan/WYQ/VAE_pytorchLightning/Letter/Letter_pro_type_label.pkl
-replace_dict_file: /userhome/wangyuanquan/WYQ/VAE_pytorchLightning/Letter/Letter数值置换表_label.pkl
-dim: 16            # 数据特征维度
+train_data: /userhome/wangyuanquan/WYQ/VAE_pytorchLightning带标签版/Letter/Letter模拟缺失_0_3_label.csv
+valid_data: /userhome/wangyuanquan/WYQ/VAE_pytorchLightning带标签版/Letter/Letter完整数据集.csv
+pro_type_file: /userhome/wangyuanquan/WYQ/VAE_pytorchLightning带标签版/Letter/Letter_pro_type_label.pkl
+replace_dict_file: /userhome/wangyuanquan/WYQ/VAE_pytorchLightning带标签版/Letter/Letter数值置换表_label.pkl
+dim: 17            # 数据特征维度
 # nhead: 3           # 多头注意力机制的头数
 data_norm: minmax_norm # 数据标准化方式
 
