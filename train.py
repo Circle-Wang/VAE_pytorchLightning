@@ -20,7 +20,7 @@ def main(hparams):
     model = MInterface(hparams)
     dataloader = DInterface(hparams)
     
-    tfname = f'{hparams.dataset_name} {hparams.model_type} {hparams.data_norm} '.replace(
+    tfname = f'带标签 {hparams.dataset_name} {hparams.model_type} {hparams.data_norm} '.replace(
         ' ', '_').replace('.', '_') # 储存模型相关参数以及tensorboard的路径
     
     # 设置回调函数

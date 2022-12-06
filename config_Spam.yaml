@@ -19,10 +19,10 @@ checkpoint_path:
 
 ############################ dataset ##################################
 dataset_name: 'Spam'
-train_data: /userhome/wangyuanquan/WYQ/VAE_pytorchLightning/Spam/Spam模拟缺失_0_3.csv
-valid_data: /userhome/wangyuanquan/WYQ/VAE_pytorchLightning/Spam/Spam_without_label.csv
-pro_type_file: /userhome/wangyuanquan/WYQ/VAE_pytorchLightning/Spam/Spam_pro_type.pkl
-replace_dict_file: /userhome/wangyuanquan/WYQ/VAE_pytorchLightning/Spam/Spam数值置换表.pkl
+train_data: /userhome/wangyuanquan/WYQ/VAE_pytorchLightning/Spam/Spam模拟缺失_0_3_label.csv
+valid_data: /userhome/wangyuanquan/WYQ/VAE_pytorchLightning/Spam/Spam完整数据集.csv
+pro_type_file: /userhome/wangyuanquan/WYQ/VAE_pytorchLightning/Spam/Spam_pro_type_label.pkl
+replace_dict_file: /userhome/wangyuanquan/WYQ/VAE_pytorchLightning/Spam/Spam数值置换表_label.pkl
 dim: 57            # 数据特征维度
 # nhead: 3           # 多头注意力机制的头数
 data_norm: minmax_norm # 数据标准化方式
