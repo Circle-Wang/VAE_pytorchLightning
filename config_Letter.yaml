@@ -15,7 +15,7 @@ lr: 1e-5                             # 学习率
 lr_scheduler: CosineAnnealingLR      # 可选CosineAnnealingLR、OneCycleLR、None
 
 ############################ load checkpoint path ###################
-checkpoint_path: /userhome/wangyuanquan/WYQ/VAE_pytorchLightning/模型参数保存/Letter_model5_minmax_norm_/version_2/checkpoints/epoch=2977-step=235262.ckpt
+checkpoint_path: 
 
 ############################ dataset ##################################
 dataset_name: 'Letter'
