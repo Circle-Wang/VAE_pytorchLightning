@@ -4,9 +4,11 @@ from pytorch_lightning import loggers as pl_loggers
 from pytorch_lightning.callbacks import ModelCheckpoint, TQDMProgressBar, LearningRateMonitor
 from pytorch_lightning import Trainer
 import logging
-import hydra #hydra-core
-from omegaconf import DictConfig
+# import hydra #hydra-core
+from omegaconf import DictConfig, OmegaConf
 import torch
+import argparse
+
 
 
 logger = logging.getLogger("train")
@@ -51,9 +53,17 @@ def main(hparams):
         trainer.fit(model, dataloader)
     
     
-@hydra.main(config_path='', config_name="config_Credit") # 读取当前当前工作环境中的config
+# @hydra.main(config_path='', config_name="config_Breast") # 读取当前当前工作环境中的config
 def my_app(args: DictConfig):
     main(args)
 
 if __name__ == '__main__':
-    my_app()
+    parser = argparse.ArgumentParser(description="模型训练配置文件名")
+    parser.add_argument('--config', default=None, help = "模型训练配置文件名")
+    args = parser.parse_args()
+    
+    if args.config is not None:
+        hparams = OmegaConf.load(args.config) # 读取配置文件
+        my_app(hparams)
+    else:
+        print("请输入正确配置文件名")

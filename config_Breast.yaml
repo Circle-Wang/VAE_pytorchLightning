@@ -8,7 +8,7 @@ max_epochs: 100000
 ############################   model ####################################
 model_type: model5
 batch_size: 256
-version: 2
+version: 3
 ############################ optimizer ##################################
 optim: Adam                          # 可选优化器Adam、SGD
 lr: 1e-5                             # 学习率
