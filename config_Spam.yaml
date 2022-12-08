@@ -8,14 +8,14 @@ max_epochs: 300000
 ############################   model ####################################
 model_type: model5
 batch_size: 256
-version: 3
+version: 2
 ############################ optimizer ##################################
 optim: Adam                          # 可选优化器Adam、SGD
 lr: 1e-5                             # 学习率
 lr_scheduler: CosineAnnealingLR      # 可选CosineAnnealingLR、OneCycleLR、None
 
 ############################ load checkpoint path ###################
-checkpoint_path: /userhome/wangyuanquan/WYQ/VAE_pytorchLightning/模型参数保存/Spam_model5_minmax_norm_/version_2/checkpoints/epoch=2936-step=52866.ckpt
+checkpoint_path:
 
 ############################ dataset ##################################
 dataset_name: 'Spam'
