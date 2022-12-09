@@ -3,6 +3,7 @@ import torch
 from torch import nn
 import torch.nn.functional as F
 import numpy as np
+import pandas as pd
 from utils import restore_data, minmax_norm
 
 class VAE5(nn.Module):
@@ -172,21 +173,21 @@ class VAE5(nn.Module):
     #     return out, mu, log_var
 
 
-    def inference(self, miss_date, restore=False):
+    def inference(self, miss_date, restore=True):
         '''
         使用模型对缺失数据进行插补
         miss_data: 是包含nan的DF(文件)
         return: 复原后的完整数据, 模型直接输出结果
         '''
         ## 将数据进行处理，替换离散数据集合
-        
+        miss_date_copy = miss_date.copy()
         for key, mapping in self.replace_dict.items():
-            miss_date[key] = miss_date[key].map(mapping)
+            miss_date_copy[key] = miss_date_copy[key].map(mapping)
 
-        Missing = 1 - miss_date.isna().to_numpy().astype(int) # 获取缺失矩阵np
+        Missing = 1 - miss_date_copy.isna().to_numpy().astype(int) # 获取缺失矩阵np
         
         ## 将数据正则化
-        partial_norm_data, norm_data, Min_Val, Max_Val = minmax_norm(miss_date, self.pro_types)
+        partial_norm_data, norm_data, Min_Val, Max_Val = minmax_norm(miss_date_copy, self.pro_types)
 
         ## 将缺失部分采用999填充
         input_data = np.nan_to_num(partial_norm_data, nan=999)
@@ -202,10 +203,35 @@ class VAE5(nn.Module):
         ## 模型推理
         # with torch.no_grad():
             # output, _, _ = self.forward(torch.from_numpy(input_data).float(), torch.from_numpy(Missing).float())
-        if restore == True:
-            imputed_data = output * (torch.from_numpy(Max_Val).float() - torch.from_numpy(Min_Val).float()) + torch.from_numpy(Min_Val).float() # 恢复原来的值
-            imputed_data = imputed_data.detach().numpy() * (1-Missing) + Missing * np.nan_to_num(miss_date, nan=999) # 先将miss_data中的nan换为99 防止计算无效
-        else:
-            imputed_data = output.detach().numpy() * (1-Missing) + Missing * np.nan_to_num(norm_data, nan=999) # 先将miss_data中的nan换为99 防止计算无效
+        # if restore == True:
+        #     imputed_data = output * (torch.from_numpy(Max_Val).float() - torch.from_numpy(Min_Val).float()) + torch.from_numpy(Min_Val).float() # 恢复原来的值
+        #     imputed_data = imputed_data.detach().numpy() * (1-Missing) + Missing * np.nan_to_num(miss_date_copy, nan=999) # 先将miss_data中的nan换为99 防止计算无效
+        #     imputed_data = pd.DataFrame(imputed_data, columns=miss_date_copy.columns)
+        #     ## 将离散的数据进行预测值进行四舍五入
+        #     imputed_data.round({ i:0 for i in self.replace_dict.keys()})
+        #     ## 根据离散数据映射表，将数据复原
+        #     new_dict = dict()  ## 得到反向映射字典
+        #     for key, value_dict in self.replace_dict.items():
+        #         new_dict[key] = dict(zip(value_dict.values(), value_dict.keys()))
+        #     for key, mapping in new_dict:
+        #         imputed_data[key] = imputed_data[key].map(mapping)
+        # else:
+        #     imputed_data = output.detach().numpy() * (1-Missing) + Missing * np.nan_to_num(norm_data, nan=999) # 先将miss_data中的nan换为99 防止计算无效
+        #     imputed_data = pd.DataFrame(imputed_data, columns=miss_date_copy.columns)
+        
+        ## 根据列最大最小将数据进行复原
+        imputed_data = output * (torch.from_numpy(Max_Val).float() - torch.from_numpy(Min_Val).float()) + torch.from_numpy(Min_Val).float() # 恢复原来的值
+        imputed_data = imputed_data.detach().numpy() * (1-Missing) + Missing * np.nan_to_num(miss_date_copy, nan=999) # 先将miss_data中的nan换为99 防止计算无效
+        imputed_data = pd.DataFrame(imputed_data, columns=miss_date_copy.columns)
+
+        ## 将离散的位置的数据进行四舍五入
+        imputed_data = imputed_data.round({ i:0 for i in self.replace_dict.keys()})
+
+        ## 根据离散数据映射表，将数据复原
+        new_dict = dict()  ## 得到反向映射字典
+        for key, value_dict in self.replace_dict.items():
+            new_dict[key] = dict(zip(value_dict.values(), value_dict.keys()))
+        for key, mapping in new_dict.items():
+            imputed_data[key] = imputed_data[key].map(mapping)
 
         return imputed_data, output
