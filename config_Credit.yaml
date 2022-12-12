@@ -8,14 +8,14 @@ max_epochs: 300000
 ############################   model ####################################
 model_type: model5
 batch_size: 256
-version: 1
+version: 2
 ############################ optimizer ##################################
 optim: Adam                          # 可选优化器Adam、SGD
 lr: 1e-5                             # 学习率
 lr_scheduler: CosineAnnealingLR      # 可选CosineAnnealingLR、OneCycleLR、None
 
 ############################ load checkpoint path ###################
-checkpoint_path:
+checkpoint_path: /userhome/wangyuanquan/WYQ/VAE_pytorchLightning带标签版/模型参数保存/带标签_Credit_model5_minmax_norm_/version_1/checkpoints/epoch=5210-step=614898.ckpt
 
 ############################ dataset ##################################
 dataset_name: 'Credit'

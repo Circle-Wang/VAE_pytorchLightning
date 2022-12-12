@@ -79,8 +79,8 @@ class MInterface(pl.LightningModule):
             return [optimizer], [scheduler]
         elif self.args.lr_scheduler == 'CosineAnnealingLR':
             scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer,
-                                                                   T_max=200,
-                                                                   eta_min=1e-6,
+                                                                   T_max=500,
+                                                                   eta_min=1e-7,
                                                                    verbose=True,
                                                                    last_epoch=-1)
             logger.info('configure_optimizers 初始化结束...')
