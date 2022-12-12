@@ -20,7 +20,7 @@ class MInterface(pl.LightningModule):
         self.args = args
         self.batch_size = self.args.batch_size
         self.learning_rate = self.args.lr
-        if self.args.model_type == 'model5':
+        if self.args.model_type == 'model':
             pro_types = pickle.load(open(self.args.pro_type_file, 'rb'))
             replace_dict = pickle.load(open(self.args.replace_dict_file, 'rb'))
             self.model = VAE(dim=self.args.dim, pro_types=pro_types, replace_dict=replace_dict)
@@ -31,32 +31,32 @@ class MInterface(pl.LightningModule):
                 nn.init.xavier_uniform_(m.weight)
 
     def training_step(self, batch, batch_idx):
-        global_normal, portion_normal = batch['global_normal'], batch['portion_normal']
+        _, portion_normal = batch['global_normal'], batch['portion_normal']
         M_matrix = batch['miss_matrix']
-        # src_data, global_normal, portion_normal = batch['src_data'], batch['global_normal'], batch['portion_normal']
-        # M_matrix = batch['miss_matrix']
-        # global_max, global_min = batch['global_max'], batch['global_min']
+        
+        out, D_tensor_list, mu, log_var = self.model(portion_normal, M_matrix) # [batch, dim]
+        
+        kl_div_loss = - 0.5 * torch.sum(1 + log_var - mu.pow(2) - log_var.exp())
+        MSE_loss, EntropyLoss = vae_loss(portion_normal, out, M_matrix, D_tensor_list, self.model.attribute_type)
 
-        imputed_data, mu, log_var = self.model(portion_normal, M_matrix) # [batch, dim]
-        # imputed_data = imputed_data * (global_max-global_min) + global_min # 恢复原来的值
-
-        loss, MSE_loss, kl_div = vae_loss(global_normal, imputed_data, M_matrix, mu, log_var)
+        loss = kl_div_loss + MSE_loss + EntropyLoss
 
         self.log('train_loss', loss, on_epoch=True, on_step=True, prog_bar=True, logger=True)
-        self.log('kl_div', kl_div, on_epoch=True, on_step=False, prog_bar=True, logger=True)
+        self.log('kl_div',kl_div_loss, on_epoch=True, on_step=False, prog_bar=True, logger=True)
         self.log('MSE_loss', MSE_loss, on_epoch=True, on_step=False, prog_bar=True, logger=True)
+        self.log('EntropyLoss', EntropyLoss, on_epoch=True, on_step=False, prog_bar=True, logger=True)
         return loss
 
     def validation_step(self, batch, batch_idx):
-        global_normal, portion_normal = batch['global_normal'], batch['portion_normal']
+        _, portion_normal = batch['global_normal'], batch['portion_normal']
         M_matrix = batch['miss_matrix']
-        # global_max, global_min = batch['global_max'], batch['global_min']
 
-        imputed_data, mu, log_var = self.model(portion_normal, M_matrix) # [batch, dim]
-        
-        # imputed_data = imputed_data * global_max + global_min # 恢复原来的值
-        miss_data_MSE = torch.sum(((1-M_matrix) * global_normal - (1-M_matrix) * imputed_data)**2)
-        self.log('val_MSE_loss', miss_data_MSE, on_epoch=True, prog_bar=True, logger=True)
+        out, D_tensor_list, mu, log_var = self.model(portion_normal, M_matrix) # [batch, dim]
+        MSE_loss, EntropyLoss = vae_loss(portion_normal, out, 1-M_matrix, D_tensor_list, self.model.attribute_type)
+        val_loss = MSE_loss + EntropyLoss
+        self.log('val_loss', val_loss, on_epoch=True, prog_bar=True, logger=True)
+        self.log('val_MSE_loss', MSE_loss, on_epoch=True, prog_bar=True, logger=True)
+        self.log('val_EntropyLoss', EntropyLoss, on_epoch=True, prog_bar=True, logger=True)
 
 
     ## 优化器配置
@@ -79,8 +79,8 @@ class MInterface(pl.LightningModule):
             return [optimizer], [scheduler]
         elif self.args.lr_scheduler == 'CosineAnnealingLR':
             scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer,
-                                                                   T_max=500,
-                                                                   eta_min=1e-7,
+                                                                   T_max=self.args.T_max,
+                                                                   eta_min=self.args.min_lr,
                                                                    verbose=True,
                                                                    last_epoch=-1)
             logger.info('configure_optimizers 初始化结束...')
