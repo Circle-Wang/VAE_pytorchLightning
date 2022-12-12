@@ -8,6 +8,8 @@ import logging
 from omegaconf import DictConfig, OmegaConf
 import torch
 import argparse
+import os
+
 
 
 
@@ -63,6 +65,12 @@ if __name__ == '__main__':
     
     if args.config is not None:
         hparams = OmegaConf.load(args.config) # 读取配置文件
+        work_path = os.getcwd()
+        hparams.save_dir = os.path.join(work_path, hparams.save_dir)
+        # train_data
+        # valid_data
+        # replace_dict_file
+        # hparams.pro_type_file = os.path.join(work_path, hparams.pro_type_file)
         my_app(hparams)
     else:
         print("请输入正确配置文件名")

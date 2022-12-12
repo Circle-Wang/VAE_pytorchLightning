@@ -32,7 +32,9 @@ class MInterface(pl.LightningModule):
 
     def training_step(self, batch, batch_idx):
         _, portion_normal = batch['global_normal'], batch['portion_normal']
+        
         M_matrix = batch['miss_matrix']
+        
         
         out, D_tensor_list, mu, log_var = self.model(portion_normal, M_matrix) # [batch, dim]
         
@@ -57,6 +59,7 @@ class MInterface(pl.LightningModule):
         self.log('val_loss', val_loss, on_epoch=True, prog_bar=True, logger=True)
         self.log('val_MSE_loss', MSE_loss, on_epoch=True, prog_bar=True, logger=True)
         self.log('val_EntropyLoss', EntropyLoss, on_epoch=True, prog_bar=True, logger=True)
+
 
 
     ## 优化器配置
