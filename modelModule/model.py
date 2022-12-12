@@ -4,15 +4,15 @@ from torch import nn
 import torch.nn.functional as F
 import numpy as np
 import pandas as pd
-from utils import restore_data, minmax_norm
+from .utils import restore_data, minmax_norm
 
-class VAE5(nn.Module):
+class VAE(nn.Module):
     def __init__(self, pro_types, replace_dict, dim):
         '''
         pro_type: list, 每个元素为(x, y), x表示每个维度数据类型: normal, discrete. y表示discrete字典长度
         replace_dict_file: 对离散数据集合进行替换的字典文件, key=列名,value={替换方法}
         '''
-        super(VAE5, self).__init__()
+        super(VAE, self).__init__()
         self.dim = dim
         self.pro_types = pro_types
         self.replace_dict = replace_dict  # 用于推理和复原文件

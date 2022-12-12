@@ -2,9 +2,9 @@ import pytorch_lightning as pl
 import torch
 from torch import nn
 
-from .model5 import VAE5
+from .model import VAE
 import pickle
-from loss_function import vae_loss
+from .loss_function import vae_loss
 
 import warnings
 import logging
@@ -23,7 +23,7 @@ class MInterface(pl.LightningModule):
         if self.args.model_type == 'model5':
             pro_types = pickle.load(open(self.args.pro_type_file, 'rb'))
             replace_dict = pickle.load(open(self.args.replace_dict_file, 'rb'))
-            self.model = VAE5(dim=self.args.dim, pro_types=pro_types, replace_dict=replace_dict)
+            self.model = VAE(dim=self.args.dim, pro_types=pro_types, replace_dict=replace_dict)
 
         ## 参数初始化
         for m in self.model.modules():
