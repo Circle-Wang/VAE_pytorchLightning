@@ -9,22 +9,26 @@ def vae_loss(src_data, out, M, tensor_list, attribute_type):
     out: (batch, dim) 模型中最后的输出
     tensor_list: list, 其中每个元素是离散属性的模型输出(batch,dim), 用于计算交叉熵
     attribute_type: 表示1表示连续型, 0表示离散型, 表示每一个属性是离散型还是连续型
-    M: 是src_data中表明缺失的部分,1表示存在, 0表示缺失
+    M: 是src_data中表明缺失的部分, 1表示存在, 0表示缺失
     '''
 
     mask_attribute_type = torch.tensor(attribute_type, device=out.device).unsqueeze(0).expand(out.shape)  # (batch, dim)
 
     # 对缺失数据进行掩码处理
-    src_data = src_data * M 
+    src_data = src_data * M
     out = out * M 
 
     loos_fun = torch.nn.CrossEntropyLoss(reduction='none')
     EntropyLoss = 0
+    MSE_loss = 0
     for index, pro_type in enumerate(attribute_type):
         if pro_type == 0:
             a = loos_fun(tensor_list[index], src_data[:,index].long())
             EntropyLoss = EntropyLoss + (a * M[:,index]).sum() / (M[:,index].sum())
-    MSE_loss = ((src_data * mask_attribute_type - out)**2).sum() / (M * mask_attribute_type).sum()
+
+    ## 如果M * mask_attribute_type不全为0，则计算下面MSE
+    if (M * mask_attribute_type).sum() != 0:
+        MSE_loss = ((src_data * mask_attribute_type - out)**2).sum() / (M * mask_attribute_type).sum()
 
     # MSE_loss = ((src_data * mask_attribute_type - out)**2).sum(1).mean()
 

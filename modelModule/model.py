@@ -122,10 +122,9 @@ class VAE(nn.Module):
         for i, embedding in enumerate(self.embeddings):
             if isinstance(embedding, nn.Embedding):
                 embedding_out = torch.cat((embedding_out, embedding(input[:, i].long().reshape(-1,1))), dim = 1)
-                # print("离散型：",embedding_out, embedding_out.shape)
+                # print(f"=========={i}=============")
                 # print("权重: ", embedding.weight)
-                
-    
+                # print("梯度: ", embedding.weight.grad)
             else:
                 embedding_out = torch.cat((embedding_out, embedding(input[:, i].reshape(-1,1,1)).permute(0, 2, 1)), dim = 1)
         # embedding_out=[batch, dim, 128]
@@ -143,6 +142,7 @@ class VAE(nn.Module):
         decoder_out = self.decoder(decoder_input)     # [batch, dim, 128]
 
         D_tensor_list = []
+
         for i, embedding in enumerate(self.embeddings):
             if isinstance(embedding, nn.Embedding):
                 d_tensor = torch.mm(decoder_out[:,i,:], embedding.weight.T) # [batch, class_number]

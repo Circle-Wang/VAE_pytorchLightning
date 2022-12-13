@@ -49,6 +49,7 @@ class FlatDataset(torch.utils.data.Dataset):
         '''
         在DataLoader中参数collate_fn的传入值,主要作用对每个batch中的每个样本进行进行整合(产生Missing矩阵,产生Z加入矩阵)和规整输出
         return:字典,注意此处返回的结果就是dataloader每次返回的batch的结果
+                'portion_normal'和'global_normal'中缺失的地方都已填补上了9999
         '''
         src_data_batch = np.stack([s['src_data'] for s in samples], axis=0)              # batch中样本的原数据集
         global_normal_batch = np.stack([s['global_normal_data'] for s in samples], axis=0) 
