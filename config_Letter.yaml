@@ -12,6 +12,7 @@ version: 1
 ############################ optimizer ##################################
 optim: Adam                          # 可选优化器Adam、SGD
 lr: 1e-5                             # 学习率
+weight_decay: 1e-3                    # 优化器的防过拟合参数
 lr_scheduler: CosineAnnealingLR      # 可选CosineAnnealingLR、OneCycleLR、None
 min_lr: 1e-6
 T_max: 500     # 在选择CosineAnnealingLR时表明，学习率调度周期

@@ -22,7 +22,7 @@ class VAE(nn.Module):
         self.embeddings = nn.ModuleList([])
         for pro_type in self.pro_types:
             if pro_type[0] == 'discrete':
-                self.embeddings.append(nn.Embedding(num_embeddings=pro_type[1], embedding_dim=128))
+                self.embeddings.append(nn.Embedding(num_embeddings=pro_type[1], embedding_dim=64))
                 # self.ClassHeads.append(nn.Sequential(nn.Linear(128, 128),
                 #                                     nn.LeakyReLU(inplace=True),
                 #                                     nn.Linear(128, pro_type[1])),
@@ -30,15 +30,15 @@ class VAE(nn.Module):
                 #                                     )
                 self.attribute_type.append(0)
             elif pro_type[0] == 'normal':
-                self.embeddings.append(nn.Conv1d(in_channels=1, out_channels=128, kernel_size=1, stride=1))
+                self.embeddings.append(nn.Conv1d(in_channels=1, out_channels=64, kernel_size=1, stride=1))
                 # self.ClassHeads.append(nn.Sequential(nn.Linear(128, 128),
                 #                                     nn.AdaptiveMaxPool1d(output_size=1))
                 #                                     )
                 self.attribute_type.append(1)
 
-        self.Nan_feature = nn.Parameter(torch.randn(1, 128)) # Nan特征用于替换缺失值的特征
+        self.Nan_feature = nn.Parameter(torch.randn(1, 64)) # Nan特征用于替换缺失值的特征
         
-        self.encoder_layer = nn.TransformerEncoderLayer(d_model=128, nhead=8, dim_feedforward=512, batch_first=True)
+        self.encoder_layer = nn.TransformerEncoderLayer(d_model=64, nhead=8, dim_feedforward=256, batch_first=True)
         self.encoder = nn.TransformerEncoder(self.encoder_layer, num_layers=6) 
 
 
@@ -65,25 +65,27 @@ class VAE(nn.Module):
 
         # 不使用max_pool的decoder
         self.FClayer_mu = nn.Sequential(
-            nn.Linear(128, 128*2),
+            nn.Linear(64, 64*2),
             nn.LeakyReLU(inplace=True),
-            nn.Linear(128*2, 128),
+            nn.Linear(64*2, 64),
             )  # 均值的输出
 
         self.FClayer_std = nn.Sequential(
-            nn.Linear(128, 128*2),
+            nn.Linear(64, 64*2),
             nn.LeakyReLU(inplace=True),
-            nn.Linear(128*2, 128),
+            nn.Linear(64*2, 64),
             )  # 方差的输出
 
         # self.max_pool = nn.AdaptiveMaxPool1d(output_size=1) # 全局最大池化,全局平均池化nn.AdaptiveAvgPool1d(output_size=1)
         self.mean_pool = nn.AdaptiveAvgPool1d(output_size=1)
         self.decoder = nn.Sequential(
-            nn.Linear(128*2, 128*4),
+            nn.Linear(64*2, 64),
             nn.LeakyReLU(),
-            nn.Linear(128*4, 128*2),
-            nn.LeakyReLU(),
-            nn.Linear(128*2, 128),
+            nn.BatchNorm1d(self.dim),
+            nn.Linear(64, 64),
+            # nn.LeakyReLU(),
+            # nn.BatchNorm1d(self.dim),
+            # nn.Linear(128, 128),
             ) # 解码器
 
         ## 采用Transformer作为解码器
@@ -128,18 +130,18 @@ class VAE(nn.Module):
             else:
                 embedding_out = torch.cat((embedding_out, embedding(input[:, i].reshape(-1,1,1)).permute(0, 2, 1)), dim = 1)
         # embedding_out=[batch, dim, 128]
-        Miss_bool = M_matrix.unsqueeze(-1).expand(embedding_out.shape) # [batch, dim, 128]
+        Miss_bool = M_matrix.unsqueeze(-1).expand(embedding_out.shape) # [batch, dim, 64]
         encoder_input = embedding_out * Miss_bool + (1 - Miss_bool) * self.Nan_feature # 将缺失数值替换为NAN
     
-        h = self.encoder(encoder_input)              # 得到隐藏层 [batch, dim, 128]
+        h = self.encoder(encoder_input)              # 得到隐藏层 [batch, dim, 64]
         
-        mu = self.FClayer_mu(h)       # 得到均值   [batch, dim, 128]
-        log_var = self.FClayer_std(h) # 得到方差   [batch, dim, 128]
+        mu = self.FClayer_mu(h)       # 得到均值   [batch, dim, 64]
+        log_var = self.FClayer_std(h) # 得到方差   [batch, dim, 64]
 
-        z = self.reparameterize(mu, log_var) # 得到隐藏变量 [batch, dim, 128]
+        z = self.reparameterize(mu, log_var) # 得到隐藏变量 [batch, dim, 64]
 
-        decoder_input = torch.cat(dim = -1, tensors = (z, h))        # [batch, dim, 128*2]
-        decoder_out = self.decoder(decoder_input)     # [batch, dim, 128]
+        decoder_input = torch.cat(dim = -1, tensors = (z, h))        # [batch, dim, 64*2]
+        decoder_out = self.decoder(decoder_input)     # [batch, dim, 64]
 
         D_tensor_list = []
 
@@ -151,7 +153,7 @@ class VAE(nn.Module):
                 D_tensor_list.append(None)
 
         out = self.mean_pool(decoder_out).squeeze(-1) # 全局平均池化 [batch, dim]
-        out = torch.sigmoid(out)  # [batch, dim]
+        out = torch.sigmoid(out)    # [batch, dim]
         mask_attribute_type = torch.tensor(self.attribute_type, device=input.device)  # 表示1表示连续型，0表示离散型 [dim]
         out = out * mask_attribute_type.unsqueeze(0).expand(miss_data.shape)  # [batch, dim]
 

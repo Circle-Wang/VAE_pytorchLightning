@@ -66,9 +66,9 @@ class MInterface(pl.LightningModule):
         logger.info('configure_optimizers 初始化开始...')
         # 选择优化器
         if self.args.optim == 'SGD':
-            optimizer = torch.optim.SGD(self.parameters(), lr=self.learning_rate, momentum=0.9, weight_decay=0.001)
+            optimizer = torch.optim.SGD(self.parameters(), lr=self.learning_rate, momentum=0.9, weight_decay=self.args.weight_decay)
         else:
-            optimizer = torch.optim.Adam(self.parameters(), lr=self.learning_rate, weight_decay=1.0)
+            optimizer = torch.optim.Adam(self.parameters(), lr=self.learning_rate, weight_decay=self.args.weight_decay)
         
         # 选择学习率调度方式
         if self.args.lr_scheduler == 'OneCycleLR':
