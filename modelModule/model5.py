@@ -4,7 +4,7 @@ from torch import nn
 import torch.nn.functional as F
 import numpy as np
 import pandas as pd
-from utils import restore_data, minmax_norm
+from .utils import restore_data, minmax_norm
 
 class VAE5(nn.Module):
     def __init__(self, pro_types, replace_dict, dim):

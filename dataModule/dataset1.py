@@ -3,7 +3,7 @@ import torch
 import numpy as np
 import pandas as pd
 
-from utils import minmax_norm, mean_norm
+from modelModule.utils import minmax_norm, mean_norm
 
 
 class FlatDataset(torch.utils.data.Dataset):
@@ -113,8 +113,8 @@ class ValidDataset(torch.utils.data.Dataset):
 
         # 根据pro_types继续部分正则化
         pro_types = pickle.load(open(pro_type_file, 'rb'))
-        self.portion_normal_data, _, _, _ = self.data_norm(self.miss_data, pro_types)    
-        _, self.global_normal_data, _, _ = self.data_norm(self.complete_data, pro_types)     
+        self.portion_normal_data, _, _, _ = self.data_norm(self.miss_data, pro_types)   # 包含缺失值和离散值 
+        _, self.global_normal_data, _, _ = self.data_norm(self.complete_data, pro_types)     # 不包含缺失值和离散值
     
 
         # self.miss_data = self.miss_data.to_numpy()  # 将原始数据集转化np

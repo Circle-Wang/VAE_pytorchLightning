@@ -1,28 +1,31 @@
 ############################   trainer ####################################
 gpus: [1]  # [0,2]
-save_dir: /userhome/wangyuanquan/WYQ/VAE_pytorchLightning/模型参数保存
+save_dir: 模型参数保存
 num_workers: 4
 precision: 32
 max_epochs: 100000
 
 ############################   model ####################################
-model_type: model5
+model_type: model1
 batch_size: 256
-version: 3
+version: 1
 ############################ optimizer ##################################
 optim: Adam                          # 可选优化器Adam、SGD
+weight_decay: 1e-4                   # 优化器的防过拟合参数
 lr: 1e-5                             # 学习率
 lr_scheduler: CosineAnnealingLR      # 可选CosineAnnealingLR、OneCycleLR、None
+min_lr: 5e-6
+T_max: 500    # 在选择CosineAnnealingLR时表明，学习率调度周期
 
 ############################ load checkpoint path ###################
 checkpoint_path:
 
 ############################ dataset ##################################
 dataset_name: 'Breast'
-train_data: /userhome/wangyuanquan/WYQ/VAE_pytorchLightning/Breast/Breast模拟缺失_0_3.csv
-valid_data: /userhome/wangyuanquan/WYQ/VAE_pytorchLightning/Breast/Breast_without_label.csv
-pro_type_file: /userhome/wangyuanquan/WYQ/VAE_pytorchLightning/Breast/Breast_pro_type.pkl
-replace_dict_file: /userhome/wangyuanquan/WYQ/VAE_pytorchLightning/Breast/Breast数值置换表.pkl
+train_data: Breast/Breast模拟缺失_0_3.csv
+valid_data: Breast/Breast_without_label.csv
+pro_type_file: Breast/Breast_pro_type.pkl
+replace_dict_file: Breast/Breast数值置换表.pkl
 dim: 9            # 数据特征维度
 # nhead: 3           # 多头注意力机制的头数
 data_norm: minmax_norm # 数据标准化方式
