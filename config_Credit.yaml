@@ -1,6 +1,6 @@
 ############################   trainer ####################################
 gpus: [1]  # [0,2]
-save_dir: /userhome/wangyuanquan/WYQ/VAE_pytorchLightning带标签版/模型参数保存
+save_dir: 模型参数保存
 num_workers: 4
 precision: 32
 max_epochs: 300000
@@ -8,22 +8,25 @@ max_epochs: 300000
 ############################   model ####################################
 model_type: model5
 batch_size: 256
-version: 2
+version: 3
 ############################ optimizer ##################################
 optim: Adam                          # 可选优化器Adam、SGD
-lr: 1e-5                             # 学习率
+weight_decay: 1e-4                   # 优化器的防过拟合参数
+lr: 1e-4                             # 学习率
 lr_scheduler: CosineAnnealingLR      # 可选CosineAnnealingLR、OneCycleLR、None
+min_lr: 5e-6
+T_max: 500    # 在选择CosineAnnealingLR时表明，学习率调度周期
 
 ############################ load checkpoint path ###################
-checkpoint_path: /userhome/wangyuanquan/WYQ/VAE_pytorchLightning带标签版/模型参数保存/带标签_Credit_model5_minmax_norm_/version_1/checkpoints/epoch=5210-step=614898.ckpt
+checkpoint_path: 模型参数保存/Credit_model5_/version_2/checkpoints/epoch=34795-step=4105928.ckpt
 
 ############################ dataset ##################################
 dataset_name: 'Credit'
-train_data: /userhome/wangyuanquan/WYQ/VAE_pytorchLightning带标签版/Credit_Card/Credit模拟缺失_0_3_label.csv
-valid_data: /userhome/wangyuanquan/WYQ/VAE_pytorchLightning带标签版/Credit_Card/Credit_Card完整数据集.csv
-pro_type_file: /userhome/wangyuanquan/WYQ/VAE_pytorchLightning带标签版/Credit_Card/Credit_Card_pro_type_label.pkl
-replace_dict_file: /userhome/wangyuanquan/WYQ/VAE_pytorchLightning带标签版/Credit_Card/Credit_Card数值置换表_label.pkl
-dim: 24            # 数据特征维度
+train_data: Credit_Card/Credit模拟缺失_0_3.csv
+valid_data: Credit_Card/Credit_Card_without_label.csv
+pro_type_file: Credit_Card/Credit_Card_pro_type.pkl
+replace_dict_file: Credit_Card/Credit_Card数值置换表.pkl
+dim: 23            # 数据特征维度
 # nhead: 3           # 多头注意力机制的头数
 data_norm: minmax_norm # 数据标准化方式
 

@@ -1,10 +1,11 @@
 import pytorch_lightning as pl
 import torch
 from torch import nn
-
-from .model5 import VAE5
 import pickle
-from loss_function import vae_loss
+
+from .model1 import VAE1
+from .model5 import VAE5
+from .loss_function import vae_loss
 
 import warnings
 import logging
@@ -24,6 +25,10 @@ class MInterface(pl.LightningModule):
             pro_types = pickle.load(open(self.args.pro_type_file, 'rb'))
             replace_dict = pickle.load(open(self.args.replace_dict_file, 'rb'))
             self.model = VAE5(dim=self.args.dim, pro_types=pro_types, replace_dict=replace_dict)
+        elif self.args.model_type == 'model1':
+            pro_types = pickle.load(open(self.args.pro_type_file, 'rb'))
+            replace_dict = pickle.load(open(self.args.replace_dict_file, 'rb'))
+            self.model = VAE1(dim=self.args.dim, pro_types=pro_types, replace_dict=replace_dict)
 
         ## 参数初始化
         for m in self.model.modules():
@@ -38,7 +43,6 @@ class MInterface(pl.LightningModule):
         # global_max, global_min = batch['global_max'], batch['global_min']
 
         imputed_data, mu, log_var = self.model(portion_normal, M_matrix) # [batch, dim]
-        # imputed_data = imputed_data * (global_max-global_min) + global_min # 恢复原来的值
 
         loss, MSE_loss, kl_div = vae_loss(global_normal, imputed_data, M_matrix, mu, log_var)
 
@@ -64,9 +68,9 @@ class MInterface(pl.LightningModule):
         logger.info('configure_optimizers 初始化开始...')
         # 选择优化器
         if self.args.optim == 'SGD':
-            optimizer = torch.optim.SGD(self.parameters(), lr=self.learning_rate, momentum=0.9)
+            optimizer = torch.optim.SGD(self.parameters(), lr=self.learning_rate, momentum=0.9, weight_decay=self.args.weight_decay)
         else:
-            optimizer = torch.optim.Adam(self.parameters(), lr=self.learning_rate)
+            optimizer = torch.optim.Adam(self.parameters(), lr=self.learning_rate, weight_decay=self.args.weight_decay)
         
         # 选择学习率调度方式
         if self.args.lr_scheduler == 'OneCycleLR':
@@ -79,8 +83,8 @@ class MInterface(pl.LightningModule):
             return [optimizer], [scheduler]
         elif self.args.lr_scheduler == 'CosineAnnealingLR':
             scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer,
-                                                                   T_max=500,
-                                                                   eta_min=1e-7,
+                                                                   T_max=self.args.T_max,
+                                                                   eta_min=self.args.min_lr,
                                                                    verbose=True,
                                                                    last_epoch=-1)
             logger.info('configure_optimizers 初始化结束...')

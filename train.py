@@ -7,6 +7,7 @@ import logging
 # import hydra #hydra-core
 from omegaconf import DictConfig, OmegaConf
 import torch
+import os
 import argparse
 
 
@@ -20,7 +21,7 @@ def main(hparams):
     model = MInterface(hparams)
     dataloader = DInterface(hparams)
     
-    tfname = f'带标签 {hparams.dataset_name} {hparams.model_type} {hparams.data_norm} '.replace(
+    tfname = f'带标签{hparams.dataset_name} {hparams.model_type} '.replace(
         ' ', '_').replace('.', '_') # 储存模型相关参数以及tensorboard的路径
     
     # 设置回调函数
@@ -64,6 +65,12 @@ if __name__ == '__main__':
     
     if args.config is not None:
         hparams = OmegaConf.load(args.config) # 读取配置文件
+        work_path = os.getcwd()
+        hparams.save_dir = os.path.join(work_path, hparams.save_dir)
+        # train_data
+        # valid_data
+        # replace_dict_file
+        # hparams.pro_type_file = os.path.join(work_path, hparams.pro_type_file)
         my_app(hparams)
     else:
-        print("请输入正确配置文件名")
+        print("请输入正确配置文件名")        

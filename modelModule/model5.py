@@ -4,7 +4,7 @@ from torch import nn
 import torch.nn.functional as F
 import numpy as np
 import pandas as pd
-from utils import restore_data, minmax_norm
+from .utils import restore_data, minmax_norm
 
 class VAE5(nn.Module):
     def __init__(self, pro_types, replace_dict, dim):
@@ -190,7 +190,7 @@ class VAE5(nn.Module):
         partial_norm_data, norm_data, Min_Val, Max_Val = minmax_norm(miss_date_copy, self.pro_types)
 
         ## 将缺失部分采用999填充
-        input_data = np.nan_to_num(partial_norm_data, nan=999)
+        input_data = np.nan_to_num(partial_norm_data, nan=9999)
 
         with torch.no_grad():
             output = torch.tensor([])
@@ -234,4 +234,4 @@ class VAE5(nn.Module):
         for key, mapping in new_dict.items():
             imputed_data[key] = imputed_data[key].map(mapping)
 
-        return imputed_data, output
+        return imputed_data, output, input_data
